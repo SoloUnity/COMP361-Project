@@ -22,11 +22,11 @@ def read_tif_to_matrix(tif_path, start_point=(0, 0), max_rows=1000, max_cols=100
         rows, cols = dem_matrix.shape
         indexed_matrix = []
 
-        for row in range(start_point[0], max_rows):
+        for row in range(start_point[0], start_point[0] + max_rows):
             if row % 100 == 0:
                 print(f"Processing cells for row {row}...")
             row_list = []
-            for col in range(start_point[1], max_cols):
+            for col in range(start_point[1], start_point[1] + max_cols):
                 lon, lat = transform * (col, row)  
                 elevation = float(dem_matrix[row, col])
                 row_list.append([(row, col), (lat, lon), elevation])
