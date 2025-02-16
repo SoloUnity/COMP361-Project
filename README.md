@@ -10,8 +10,12 @@
 | **MySQL Connector** | Latest  | `pip install mysql-connector-python`                               | `pip install mysql-connector-python`     |
 | **Pygame**          | Latest  | `pip install pygame`                                               | `pip install pygame`                     |
 
----
+> **⚠ Note:** The Docker Engine **must be running** to compose the container.  
+> Open **Docker Desktop** in the background to start.
 
-**Note:** The Docker Engine must be running to compose the container. Open Docker Desktop in the background to start.
-To start the MySQL server, run _setup.sh_
-(As we continue to develop, I will refactor the script to _setup.py_ to create an .exe in _dist/_)
+To start the **MySQL server**, run:
+
+```sh
+./setup.sh
+```
+> **🚀 Future Plan:** As we develop, `setup.sh` will be refactored to `setup.py` to create a `.exe` in the `dist/` folder.
