@@ -1,2 +1,8 @@
 Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif
 __pycache__/*
+*.pyc
+*.pyo
+build/
+dist/
+*.spec
+.env
