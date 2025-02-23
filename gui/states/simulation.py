@@ -6,6 +6,12 @@ from control_element.button import Button
 
 #support resize
 
+#constants for UI
+WHITE = (255, 255, 255)
+FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15) 
+LIGHT_GRAY = (155, 155, 155)
+TAB_COLOR = (31,30,30)
+
 class Simulation:
     def __init__(self, display, program_state_manager):
         self.display = display
@@ -19,7 +25,7 @@ class Simulation:
         MENU_BORDER_RADIUS = 3
         MENU_H = 25
         MENU_Y = 3
-        FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 13)   
+        FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15)   
 
         #DROP_DOWNS
         DROP_DOWN_COLOR_OPTION_ACTIVE = (65, 71, 82)
@@ -32,7 +38,8 @@ class Simulation:
 
         self.project_drop_down = DropDown("Project", PROJECT_OPTIONS, COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, DROP_DOWN_COLOR_OPTION_INACTIVE, DROP_DOWN_COLOR_OPTION_ACTIVE,FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 40, MENU_Y, 55, MENU_H, 150)
 
-        self.select_rover_drop_down = DropDown("Select Rover", TEMP_OPTION, COLOR_MAIN_ACTIVE, (13, 59, 66), DROP_DOWN_COLOR_OPTION_ACTIVE, (	21, 97, 109),FONT, MENU_TEXT_COLOR, 5, display.get_width()/2 - 75, MENU_Y, 250, MENU_H, 250)
+        self.select_rover_drop_down = DropDown("Select Rover", TEMP_OPTION, COLOR_MAIN_ACTIVE, (13, 59, 66), DROP_DOWN_COLOR_OPTION_ACTIVE, (21, 97, 109),FONT, MENU_TEXT_COLOR, 5, 483, MENU_Y, 342, MENU_H, 250)
+        #display.get_width()/2 - 75
 
         #ICONS TOP
         ICON_W = 30
@@ -65,7 +72,10 @@ class Simulation:
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
 
 
-
+    def draw_text(self, text, position, font, color=WHITE):
+        """Draw text on the screen at a given position with a specified color."""
+        text_surface = font.render(text, True, color)
+        self.display.blit(text_surface, position)
     
 
     def draw_window(self):
@@ -79,6 +89,10 @@ class Simulation:
         SIMULATION_WINDOW_W,SIMULATION_WINDOW_H)
         pygame.draw.rect(self.display, SIMULATION_SCREEN_COLOR, simulation_window)
 
+        self.draw_text("Create new project to start simulation +", (499,342), FONT, LIGHT_GRAY)
+        pygame.draw.rect(self.display, TAB_COLOR, (40,32, SIMULATION_WINDOW_W,32)) #tab
+        pygame.draw.rect(self.display, WHITE, (40,32, SIMULATION_WINDOW_W + 1,32), 1) #tab border
+        
         self.project_drop_down.draw(self.display)
         self.select_rover_drop_down.draw(self.display)
         self.add_rover_button.draw(self.display)
@@ -92,7 +106,7 @@ class Simulation:
         self.setting_button.draw(self.display)
 
         
-
+        
     def run(self, events):
         self.display.fill((30,33,38))
 
