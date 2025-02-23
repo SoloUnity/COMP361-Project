@@ -24,7 +24,7 @@ class Program:
         pygame.display.set_caption('Math Pathfinding Simulator')
 
         self.clock = pygame.time.Clock()
-        self.programStateManager = ProgramStateManager('simulation')
+        self.programStateManager = ProgramStateManager('login')
         self.login = Login(self.screen, self.programStateManager)
         self.simulation = Simulation(self.screen, self.programStateManager)
 
