@@ -145,7 +145,7 @@ class Login:
                             self.invalid_key = True  # Set invalid key flag
                             self.license_key_text = ''  # Clear input
                     else:
-                        if self.active_input == "license_key":
+                        if len(self.license_key_text) < 16:
                             self.license_key_text += event.unicode
 
 
