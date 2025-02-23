@@ -50,7 +50,6 @@ class Login:
         pygame.draw.rect(self.display, self.license_current_color, self.license_key_rect, border_radius=40)
         pygame.draw.rect(self.display, BLACK, self.license_key_rect, 1, border_radius=40)
         pygame.draw.rect(self.display, self.login_b_current_color, self.login_button, border_radius=40)
-    #pygame.draw.rect(screen, GRAY if active_input != "password" else BLACK, password_box, 2)
 
         #Logo
         logo = pygame.image.load('images/logo_name.png')
@@ -136,10 +135,8 @@ class Login:
                     if event.key == pygame.K_BACKSPACE:
                         if self.active_input == "license_key":
                             self.license_key_text = self.license_key_text[:-1]
-                        elif self.active_input == "login_press":
-                            password_text = password_text[:-1]
                     elif event.key == pygame.K_RETURN:
-                        #print(f"Username: {self.license_key_text}")  # Replace with actual login handling
+                        # Replace with actual login handling
                         key_authorized = self.check_key(self.license_key_text)
                         if key_authorized:
                             self.program_state_manager.set_state('simulation')
@@ -150,8 +147,7 @@ class Login:
                     else:
                         if self.active_input == "license_key":
                             self.license_key_text += event.unicode
-                        elif self.active_input == "login_press":
-                            password_text += event.unicode
+
 
         # Render the appropriate screen
         if self.current_screen == START_SCREEN:
