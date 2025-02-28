@@ -1,28 +1,25 @@
 import pygame, sys
-
 import os  
-from states.login import Login
-from states.simulation import Simulation
-from states.state_manager import ProgramStateManager
-
-pygame.init()
-
-# Constants
-FPS = 120
-SCREENWIDTH, SCREENHEIGHT = 1280, 720
-LOGIN_WIDTH = 600
-LOGIN_HEIGHT = 700
-FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 18)
-
-# Set the environment variable to center the window
-os.environ['SDL_VIDEO_CENTERED'] = '1'
+from gui.states.login import Login
+from gui.states.simulation import Simulation
+from gui.states.state_manager import ProgramStateManager
 
 class Program:
     def __init__(self):
+        self.FPS = 120
+        self.SCREENWIDTH, self.SCREENHEIGHT = 1280, 720
+        self.LOGIN_WIDTH = 600
+        self.LOGIN_HEIGHT = 700
+        
+        # Set the environment variable to center the window
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
+        self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT))
         pygame.display.set_caption('Math Pathfinding Simulator')
 
+        self.FONT = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 18)
+        
         self.clock = pygame.time.Clock()
         self.programStateManager = ProgramStateManager('login')
         self.login = Login(self.screen, self.programStateManager)
@@ -42,19 +39,13 @@ class Program:
             current_state = self.programStateManager.get_state()
             self.states[current_state].run(events)
 
-            #weird block of code
-
             if current_state == 'simulation' and not self.fullscreen:
-                self.screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT), pygame.NOFRAME)
+                self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT), pygame.NOFRAME)
                 self.fullscreen = True
                 
             elif current_state == 'login' and self.fullscreen:
-                self.screen = pygame.display.set_mode((LOGIN_WIDTH, LOGIN_HEIGHT))
+                self.screen = pygame.display.set_mode((self.LOGIN_WIDTH, self.LOGIN_HEIGHT))
                 self.fullscreen = False
 
             pygame.display.update()
-            self.clock.tick(FPS)
-
-if __name__ == "__main__":
-    program = Program()
-    program.run()
+            self.clock.tick(self.FPS)

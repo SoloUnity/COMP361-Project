@@ -1,15 +1,15 @@
 import pygame
 import sys
 import pygame._sdl2
-from control_element.drop_down import DropDown
-from control_element.button import Button
-from control_element.popup_window import PopupWindow
+from gui.control_element.drop_down import DropDown
+from gui.control_element.button import Button
+from gui.control_element.popup_window import PopupWindow
 
 #support resize
 
 #constants for UI
 WHITE = (255, 255, 255)
-FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15) 
+FONT = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 15) 
 LIGHT_GRAY = (155, 155, 155)
 TAB_COLOR = (31,30,30)
 
@@ -26,7 +26,7 @@ class Simulation:
         MENU_BORDER_RADIUS = 3
         MENU_H = 25
         MENU_Y = 3
-        FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15)   
+        FONT = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 15)   
 
         #DROP_DOWNS
         DROP_DOWN_COLOR_OPTION_ACTIVE = (65, 71, 82)
@@ -44,9 +44,9 @@ class Simulation:
 
         #ICONS TOP
         ICON_W = 30
-        CLOSE_ICON = pygame.image.load('images/icon_close.png')
-        RESTORE_ICON = pygame.image.load('images/icon_restore.png')
-        MINIMIZE_ICON = pygame.image.load('images/icon_minimize.png')
+        CLOSE_ICON = pygame.image.load('gui/images/icon_close.png')
+        RESTORE_ICON = pygame.image.load('gui/images/icon_restore.png')
+        MINIMIZE_ICON = pygame.image.load('gui/images/icon_minimize.png')
 
         self.add_rover_button = Button("Add Rover", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 100, MENU_Y, 75, MENU_H)
 
@@ -65,9 +65,9 @@ class Simulation:
         S_ICON_X = 3
         S_ICON_H = 25
 
-        ERROR_ICON = pygame.image.load('images/icon_error.png')
-        SETTING_ICON = pygame.image.load('images/icon_setting.png')
-        VISIBILITY_ICON = pygame.image.load('images/icon_visibility.png')
+        ERROR_ICON = pygame.image.load('gui/images/icon_error.png')
+        SETTING_ICON = pygame.image.load('gui/images/icon_setting.png')
+        VISIBILITY_ICON = pygame.image.load('gui/images/icon_visibility.png')
 
         self.error_button = Button("Error", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 110, ICON_W, S_ICON_H, ERROR_ICON, 0.8)
 
@@ -144,7 +144,7 @@ class Simulation:
         if self.help_button.is_clicked:
             self.show_help_popup = not self.show_help_popup  # Toggle the popup visibility
             if self.show_help_popup:
-                self.help_popup.show("text_files/help_desc.txt")
+                self.help_popup.show("gui/text_files/help_desc.txt")
             else:
                 self.help_popup.hide()
 

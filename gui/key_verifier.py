@@ -3,7 +3,7 @@
 import csv
 
 # Hard-coded csv
-FILENAME = 'license_keys.csv' 
+FILENAME = 'gui/license_keys.csv' 
 
 class KeyVerifier:
     def __init__(self):
