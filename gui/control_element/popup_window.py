@@ -39,8 +39,8 @@ class PopupWindow:
         self.DIM_COLOR = (0, 0, 0, 150)
 
         # Fonts
-        self.title_font = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 32) 
-        self.text_font = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 18) 
+        self.title_font = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 32) 
+        self.text_font = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 18) 
 
         # Content
         self.content_lines = []
