@@ -1,14 +1,15 @@
 import pygame
 import sys
 import pygame._sdl2
-from control_element.drop_down import DropDown
-from control_element.button import Button
-
+from gui.control_element.drop_down import DropDown
+from gui.control_element.button import Button
+from gui.control_element.popup_window import PopupWindow
+from utils.paths import REGULAR, get_image, get_text_file
 #support resize
 
 #constants for UI
 WHITE = (255, 255, 255)
-FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15) 
+FONT = pygame.font.Font(REGULAR, 15) 
 LIGHT_GRAY = (155, 155, 155)
 TAB_COLOR = (31,30,30)
 
@@ -25,7 +26,7 @@ class Simulation:
         MENU_BORDER_RADIUS = 3
         MENU_H = 25
         MENU_Y = 3
-        FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 15)   
+        FONT = pygame.font.Font(REGULAR, 15)   
 
         #DROP_DOWNS
         DROP_DOWN_COLOR_OPTION_ACTIVE = (65, 71, 82)
@@ -43,13 +44,16 @@ class Simulation:
 
         #ICONS TOP
         ICON_W = 30
-        CLOSE_ICON = pygame.image.load('images/icon_close.png')
-        RESTORE_ICON = pygame.image.load('images/icon_restore.png')
-        MINIMIZE_ICON = pygame.image.load('images/icon_minimize.png')
+        CLOSE_ICON = pygame.image.load(get_image('icon_close.png'))
+        RESTORE_ICON = pygame.image.load(get_image('icon_restore.png'))
+        MINIMIZE_ICON = pygame.image.load(get_image('icon_minimize.png'))
 
         self.add_rover_button = Button("Add Rover", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 100, MENU_Y, 75, MENU_H)
 
         self.help_button = Button("Help", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 180, MENU_Y, 45, MENU_H)
+        self.show_help_popup = False
+        # Popup instance
+        self.help_popup = PopupWindow(self.display, width=500, height=400, title="Help")
 
         self.close_window_button = Button("Close", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width() - 40, MENU_Y, ICON_W, MENU_H, CLOSE_ICON, 0.8)
 
@@ -61,9 +65,9 @@ class Simulation:
         S_ICON_X = 3
         S_ICON_H = 25
 
-        ERROR_ICON = pygame.image.load('images/icon_error.png')
-        SETTING_ICON = pygame.image.load('images/icon_setting.png')
-        VISIBILITY_ICON = pygame.image.load('images/icon_visibility.png')
+        ERROR_ICON = pygame.image.load(get_image('icon_error.png'))
+        SETTING_ICON = pygame.image.load(get_image('icon_setting.png'))
+        VISIBILITY_ICON = pygame.image.load(get_image('icon_visibility.png'))
 
         self.error_button = Button("Error", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 110, ICON_W, S_ICON_H, ERROR_ICON, 0.8)
 
@@ -106,7 +110,7 @@ class Simulation:
         self.setting_button.draw(self.display)
 
         
-        
+
     def run(self, events):
         self.display.fill((30,33,38))
 
@@ -115,6 +119,10 @@ class Simulation:
                 if event.key == pygame.K_BACKSPACE:
                     pygame.quit()
                     sys.exit()
+
+            # Forward events to the popup if it's visible
+            if self.help_popup.visible:
+                self.help_popup.handle_event(event)
 
         #Title Bar Logic
         project_dragdown_option = self.project_drop_down.update(events)
@@ -132,12 +140,26 @@ class Simulation:
         if self.minimize_window_button.is_clicked:
             self.sdl2_window.minimize()
 
+        #Handle help button
+        if self.help_button.is_clicked:
+            self.show_help_popup = not self.show_help_popup  # Toggle the popup visibility
+            if self.show_help_popup:
+                self.help_popup.show(get_text_file("gui/text_files/help_desc.txt"))
+            else:
+                self.help_popup.hide()
+
         #Side Bar Logic
         self.setting_button.update(events)
         self.error_button.update(events)
         self.view_data_button.update(events)
 
         self.draw_window()
+
+        # Display Help Popup Window
+        if self.show_help_popup:
+            self.help_popup.draw()
+
+        
 
     def get_size(self):
         return self.width, self.height

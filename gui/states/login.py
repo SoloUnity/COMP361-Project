@@ -1,5 +1,6 @@
 import pygame
-from key_verifier import KeyVerifier
+from gui.key_verifier import KeyVerifier
+from utils.paths import REGULAR, get_image
 pygame.init()
 
 # Constants for UI
@@ -23,7 +24,7 @@ class Login:
         self.program_state_manager = program_state_manager
 
         # GUI elements initialization
-        self.font = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 18)
+        self.font = pygame.font.Font(REGULAR, 18)
         self.license_key_text = ''
         self.license_current_color = WHITE
         self.login_b_current_color = LOGIN_BLUE
@@ -36,7 +37,7 @@ class Login:
 
     def draw_start_screen(self, width, height):
         """Draws the start screen with background image."""
-        background = pygame.image.load('images/background.png')
+        background = pygame.image.load(get_image('background.png'))
         background = pygame.transform.scale(background, (width, height))
         self.display.blit(background, (0,0))
 
@@ -53,7 +54,7 @@ class Login:
     #pygame.draw.rect(screen, GRAY if active_input != "password" else BLACK, password_box, 2)
 
         #Logo
-        logo = pygame.image.load('images/logo_name.png')
+        logo = pygame.image.load(get_image('logo_name.png'))
         logo = pygame.transform.scale(logo, (606, 404))
         self.display.blit(logo, (395, 0))
 

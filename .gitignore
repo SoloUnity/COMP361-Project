@@ -6,3 +6,6 @@ build/
 dist/
 *.spec
 .env
+build/
+dist/
+todo.md
