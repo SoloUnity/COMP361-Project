@@ -1,6 +1,7 @@
 import pygame
 import sys
 import textwrap
+from utils.paths import REGULAR
 
 class PopupWindow:
     def __init__(self, screen, width=400, height=300, title="Popup", file_path=None):
@@ -39,8 +40,8 @@ class PopupWindow:
         self.DIM_COLOR = (0, 0, 0, 150)
 
         # Fonts
-        self.title_font = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 32) 
-        self.text_font = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 18) 
+        self.title_font = pygame.font.Font(REGULAR, 32) 
+        self.text_font = pygame.font.Font(REGULAR, 18) 
 
         # Content
         self.content_lines = []
