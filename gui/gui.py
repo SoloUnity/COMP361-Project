@@ -3,6 +3,7 @@ import os
 from gui.states.login import Login
 from gui.states.simulation import Simulation
 from gui.states.state_manager import ProgramStateManager
+from utils.paths import REGULAR, get_image
 
 class Program:
     def __init__(self):
@@ -18,7 +19,7 @@ class Program:
         self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT))
         pygame.display.set_caption('Math Pathfinding Simulator')
 
-        self.FONT = pygame.font.Font("gui/Inter/Inter-VariableFont_opsz,wght.ttf", 18)
+        self.FONT = pygame.font.Font(REGULAR, 18)
         
         self.clock = pygame.time.Clock()
         self.programStateManager = ProgramStateManager('login')

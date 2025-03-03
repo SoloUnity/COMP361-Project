@@ -1,14 +1,15 @@
 import sqlite3
 import os
+from utils.paths import DATABASE, resource_path
 
-os.makedirs('database/sqlite', exist_ok=True)
-DB_PATH = 'database/sqlite/mars_rover_sim.db'
+os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
 
 def setup_database():
     """Initialize the SQLite database with schema"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DATABASE)
     
-    with open('database/schema.sql', 'r') as f:
+    schema_path = resource_path('database/schema.sql')
+    with open(schema_path, 'r') as f:
         conn.executescript(f.read())
     
     conn.commit()
@@ -16,7 +17,7 @@ def setup_database():
 
 def get_connection():
     """Get a connection to the SQLite database"""
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(DATABASE)
 
 def fetch_rovers():
     """Fetch all rovers from the database"""
