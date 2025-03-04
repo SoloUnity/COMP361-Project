@@ -1,7 +1,8 @@
 import uuid
+import sqlite3
 from datetime import datetime
 from database.db import  get_connection
-import sqlite3
+from presets import *
 
 class Rover:
     def __init__(self, rover_id=None, name='', dimensions='', weight=0.0, date_created=None, status='Healthy', manufacturer='', total_range=0.0, range_left=0.0, top_speed=0.0, wheel_count=0, wheel_diameter=0.0, max_incline=0.0, last_trajectory=None, sprite_file_path='', total_distance_traveled=0.0, total_capacity=0.0, power_source=''):
@@ -23,6 +24,19 @@ class Rover:
         self.total_distance_traveled = total_distance_traveled
         self.total_capacity = total_capacity
         self.power_source = power_source
+
+def create_rover(rover_type):
+    r = rover_type.lower()
+    if r == "curiosity":
+        return create_curiosity()
+    elif r == "perserverance":
+        return create_perseverance()
+    elif r == "lunokhod1":
+        return create_lunokhod1()
+    elif r == "lunokhod2":
+        return create_lunokhod2()
+    else:
+        raise ValueError("Unknown rover type: " + rover_type)
 
 def get_rover_by_id(rover_id):
     conn = get_connection()
