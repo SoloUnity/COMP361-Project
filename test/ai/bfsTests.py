@@ -74,13 +74,12 @@ class bfsTests(unittest.TestCase):
         rover = Rover(30)
         path = bfs.visitAll(fromLoc, [toLoc2, toLoc1], rover, mh)
 
-        self.assertEqual(len(path), 6)
+        self.assertEqual(len(path), 5)
         self.assertEqual(path[0].y, 1)
         self.assertEqual(path[1].y, 0)
-        self.assertEqual(path[2].y, 0)
-        self.assertEqual(path[3].y, 1)
-        self.assertEqual(path[4].y, 2)
-        self.assertEqual(path[5].y, 3)
+        self.assertEqual(path[2].y, 1)
+        self.assertEqual(path[3].y, 2)
+        self.assertEqual(path[4].y, 3)
 
 if __name__ == '__main__':
     unittest.main()

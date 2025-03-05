@@ -3,8 +3,26 @@ from Pathfinder import PathFinder
 from Location import Location
 
 class BFS(PathFinder):
+    """
+    Breadth-first search algorithm
+    """
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
+        """
+        Finds a path from fromLoc to toLoc in the provided submap and for the provided rover
+            using BFS
+        Returns a list of locations corresponding to the path
+
+        fromLoc : Location
+            the starting location
+        toLoc : Location
+            the destination
+        rover : Rover
+            the rover for which the method searches a path
+        mapHandler : MapHandler
+            handler for the map subsection the methods searches in
+        """
+
         q = deque()
         visited = []
 
@@ -13,7 +31,7 @@ class BFS(PathFinder):
             current = q.popleft()
             visited.append(current.coord)
             if (current.coord == (toLoc.x, toLoc.y)) :
-                return self.getPath(current, mapHandler)
+                return [fromLoc] + self.getPath(current, mapHandler)
             
             cx, cy = current.coord
             for n in mapHandler.getNeighbors(cx, cy):
@@ -25,12 +43,27 @@ class BFS(PathFinder):
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        if (len(toVisit) == 0) : return [fromLoc]
+        """
+        Finds a path from fromLoc that visits the locations in toVisit in the provided submap and for the provided rover
+            using BFS
+        Returns a list of locations corresponding to the path
+
+        fromLoc : Location
+            the starting location
+        toVisit : List[Location]
+            the destination
+        rover : Rover
+            the rover for which the method searches a path
+        mapHandler : MapHandler
+            handler for the map subsection the methods searches in
+        """
+        
+        path = [fromLoc]
+        if (len(toVisit) == 0) : return path
 
         leftToVisit = set(map(lambda loc : (loc.x, loc.y), toVisit))
         q = deque()
         visited = []
-        path = []
 
         q.append(Node((fromLoc.x, fromLoc.y), None))
         while(len(q) > 0) :
@@ -57,9 +90,16 @@ class BFS(PathFinder):
         return path
 
     def getPath(self, toLoc, mapHandler) :
+        """
+        Computes the path starting at toLoc following the parent of each Node (fromLoc is excluded)
+        Returns a list of Locations
+
+        toLoc : Node
+        mapHandler : MapHandler
+        """
         path = []
         current = toLoc
-        while current != None :
+        while current.parent != None :
             cx, cy = current.coord
             path.append(Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2]))
             current = current.parent
