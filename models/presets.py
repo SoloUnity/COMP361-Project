@@ -18,7 +18,7 @@ def create_curiosity():
             wheel_diameter=0.5,
             max_incline=30.0,
             last_trajectory=None,
-            sprite_file_path="sprites/curiosity.png",
+            sprite_file_path="sprites/curiosity.png", # UPDATE
             total_distance_traveled=0.0,
             total_capacity=500.0,
             power_source="Nuclear"
@@ -40,7 +40,7 @@ def create_perseverance():
             wheel_diameter=0.5,
             max_incline=30.0,
             last_trajectory=None,
-            sprite_file_path="sprites/perseverance.png",
+            sprite_file_path="sprites/perseverance.png", # UPDATE
             total_distance_traveled=0.0,
             total_capacity=500.0,
             power_source="Nuclear"
@@ -62,7 +62,7 @@ def create_lunokhod1():
             wheel_diameter=0.45,
             max_incline=25.0,
             last_trajectory=None,
-            sprite_file_path="sprites/lunokhod1.png",
+            sprite_file_path="sprites/lunokhod1.png", # UPDATE
             total_distance_traveled=0.0,
             total_capacity=300.0,
             power_source="Nuclear"
@@ -84,7 +84,7 @@ def create_lunokhod2():
             wheel_diameter=0.45,
             max_incline=25.0,
             last_trajectory=None,
-            sprite_file_path="sprites/lunokhod2.png",
+            sprite_file_path="sprites/lunokhod2.png", # UPDATE
             total_distance_traveled=0.0,
             total_capacity=300.0,
             power_source="Nuclear"

@@ -25,19 +25,6 @@ class Rover:
         self.total_capacity = total_capacity
         self.power_source = power_source
 
-def create_rover(rover_type):
-    r = rover_type.lower()
-    if r == "curiosity":
-        return create_curiosity()
-    elif r == "perserverance":
-        return create_perseverance()
-    elif r == "lunokhod1":
-        return create_lunokhod1()
-    elif r == "lunokhod2":
-        return create_lunokhod2()
-    else:
-        raise ValueError("Unknown rover type: " + rover_type)
-
 def get_rover_by_id(rover_id):
     conn = get_connection()
     conn.row_factory = sqlite3.Row
@@ -68,7 +55,24 @@ def get_rover_by_id(rover_id):
         )
     return None
 
-def add_rover_to_db(rover):
+def create_rover(rover_type):
+    '''
+    TODO: Refactor to support customer rover values
+    -> create_rover('...','...', etc.)
+    -> create_rover_by_type('rover_type')
+    '''
+    r = rover_type.lower()
+    if r == "curiosity":
+        rover = create_curiosity()
+    elif r == "perserverance":
+        rover = create_perseverance()
+    elif r == "lunokhod1":
+        rover = create_lunokhod1()
+    elif r == "lunokhod2":
+        rover = create_lunokhod2()
+    else:
+        raise ValueError("Unknown rover type: " + rover_type)
+
     conn = get_connection()
     cursor = conn.cursor()
     query = "INSERT INTO Rover (RoverID, Name, Dimensions, Weight, dateCreated, Status, Manufacturer, totalRange, rangeLeft, topSpeed, wheelCount, wheelDiameter, maxIncline, lastTrajectory, spriteFilePath, totalDistanceTraveled, totalCapacity, powerSource) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -80,3 +84,15 @@ def add_rover_to_db(rover):
     ))
     conn.commit()
     conn.close()
+    
+    return rover
+
+def delete_rover(rover_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = "DELETE FROM Rover WHERE RoverID = ?"
+    cursor.execute(query, (rover_id,))
+    rows_deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return rows_deleted > 0
