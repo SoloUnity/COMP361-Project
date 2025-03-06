@@ -43,3 +43,9 @@ CREATE TABLE IF NOT EXISTS Rover (
     powerSource TEXT CHECK(powerSource IN ('Nuclear', 'Solar', 'Battery')) NOT NULL,
     FOREIGN KEY (lastTrajectory) REFERENCES Trajectory(TrajectoryID)
 );
+
+CREATE TABLE IF NOT EXISTS LicenseKey (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key VARCHAR(255) NOT NULL,
+    verifiedOn DATETIME NOT NULL
+);

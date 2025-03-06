@@ -1,5 +1,5 @@
 import pygame
-from gui.key_verifier import KeyVerifier
+from api.api import verify_license_key, has_valid_key
 from utils.paths import REGULAR, get_image
 pygame.init()
 
@@ -32,7 +32,14 @@ class Login:
         self.login_button = pygame.Rect(480, 415, 312, 43)
         self.invalid_key = False  # Track if the entered key is invalid
         self.active_input = None
-        self.current_screen = START_SCREEN
+        
+        # Check if we already have a valid key saved
+        if has_valid_key():
+            # Skip login and go straight to simulation
+            self.program_state_manager.set_state('simulation')
+            self.current_screen = START_SCREEN
+        else:
+            self.current_screen = START_SCREEN
         
 
     def draw_start_screen(self, width, height):
@@ -85,8 +92,7 @@ class Login:
 
     def check_key(self, key_to_check):
         """Check if the provided key is valid using KeyVerifier."""
-        verifier = KeyVerifier()
-        return verifier.verify_license_key(key_to_check)
+        return verify_license_key(key_to_check)
 
     def run(self, events):
         """Handle events and update the login screen."""

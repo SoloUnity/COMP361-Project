@@ -37,3 +37,46 @@ def get_trajectory_by_id(trajectory_id):
             distance_traveled=row["distanceTraveled"]
         )
     return None
+
+def create_trajectory(rover_id, project_id, current_coord, target_coord, coordinate_list=None, total_distance=0.0):
+    trajectory = Trajectory(
+        rover_id=rover_id,
+        project_id=project_id,
+        current_coord=current_coord,
+        target_coord=target_coord,
+        coordinate_list=coordinate_list,
+        total_distance=total_distance
+    )
+    coord_list_str = str(trajectory.coordinate_list) if trajectory.coordinate_list else "[]"
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = """INSERT INTO Trajectory 
+              (TrajectoryID, RoverID, ProjectID, currentCoord, targetCoord, startTime, 
+               endTime, coordinateList, totalDistance, distanceTraveled) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    cursor.execute(query, (
+        trajectory.trajectory_id,
+        trajectory.rover_id,
+        trajectory.project_id,
+        trajectory.current_coord,
+        trajectory.target_coord,
+        trajectory.start_time,
+        trajectory.end_time,
+        coord_list_str,
+        trajectory.total_distance,
+        trajectory.distance_traveled
+    ))
+    conn.commit()
+    conn.close()
+    
+    return trajectory
+
+def delete_trajectory(trajectory_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = "DELETE FROM Trajectory WHERE TrajectoryID = ?"
+    cursor.execute(query, (trajectory_id,))
+    rows_deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return rows_deleted > 0
