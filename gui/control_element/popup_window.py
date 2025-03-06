@@ -41,7 +41,8 @@ class PopupWindow:
 
         # Fonts
         self.title_font = pygame.font.Font(REGULAR, 32) 
-        self.text_font = pygame.font.Font(REGULAR, 18) 
+        self.subtitle_font = pygame.font.Font(REGULAR, 24)
+        self.body_font = pygame.font.Font(REGULAR, 18) 
 
         # Content
         self.content_lines = []
@@ -53,7 +54,7 @@ class PopupWindow:
         self.dragging = False
         self.drag_offset = (0, 0)
 
-    def _wrap_text(self, text, max_width):
+    def _wrap_text(self, text, max_width, font):
         """Wrap text into lines that fit within the given width."""
         words = text.split(' ')
         lines = []
@@ -61,7 +62,7 @@ class PopupWindow:
 
         for word in words:
             test_line = current_line + word + " "
-            if self.text_font.size(test_line)[0] <= max_width:
+            if font.size(test_line)[0] <= max_width:
                 current_line = test_line
             else:
                 lines.append(current_line.strip())
@@ -71,22 +72,59 @@ class PopupWindow:
             lines.append(current_line.strip())
 
         return lines
-
+    
     def load_content(self, file_path):
-        """Load content from a text file and wrap it."""
+        """Load content from a text file and wrap it with specific fonts."""
         try:
             with open(file_path, "r") as file:
                 raw_lines = file.readlines()
                 wrapped_lines = []
-                # Wrap each line to fit inside the popup (subtract padding and scrollbar width)
                 max_width = self.width - 60 - self.scrollbar_width
+
+                current_font = self.body_font  # Default font
                 for line in raw_lines:
-                    wrapped_lines.extend(self._wrap_text(line.strip(), max_width))
+                    line = line.strip()
+
+                    # Detect markers and set fonts
+                    if line.startswith("[title]"):
+                        current_font = self.title_font
+                        line = line.replace("[title]", "")
+                    elif line.startswith("[subtitle]"):
+                        current_font = self.subtitle_font
+                        line = line.replace("[subtitle]", "")
+                    elif line.startswith("[body]"):
+                        current_font = self.body_font
+                        line = line.replace("[body]", "")
+                    else:
+                        current_font = self.body_font
+
+                    # Wrap text and store with the associated font
+                    for wrapped_line in self._wrap_text(line, max_width, current_font):
+                        wrapped_lines.append((wrapped_line, current_font))
+
                 self.content_lines = wrapped_lines
+
         except FileNotFoundError:
-            self.content_lines = ["Error: File not found."]
+            self.content_lines = [("Error: File not found.", self.body_font)]
         except Exception as e:
-            self.content_lines = [f"Error: {str(e)}"]
+            self.content_lines = [(f"Error: {str(e)}", self.body_font)]
+
+
+    # def load_content(self, file_path):
+    #     """Load content from a text file and wrap it."""
+    #     try:
+    #         with open(file_path, "r") as file:
+    #             raw_lines = file.readlines()
+    #             wrapped_lines = []
+    #             # Wrap each line to fit inside the popup (subtract padding and scrollbar width)
+    #             max_width = self.width - 60 - self.scrollbar_width
+    #             for line in raw_lines:
+    #                 wrapped_lines.extend(self._wrap_text(line.strip(), max_width))
+    #             self.content_lines = wrapped_lines
+    #     except FileNotFoundError:
+    #         self.content_lines = ["Error: File not found."]
+    #     except Exception as e:
+    #         self.content_lines = [f"Error: {str(e)}"]
 
     def show(self, file_path=None):
         """Show the popup window and load content if a file is provided."""
@@ -176,11 +214,11 @@ class PopupWindow:
 
         # Draw wrapped text onto popup_surface
         y_offset = self.scroll_position
-        for line in self.content_lines:
+        for line, font in self.content_lines:
             if y_offset + 30 > 0 and y_offset < text_area_rect.height:
-                text_surface = self.text_font.render(line, True, self.TEXT_COLOR)
+                text_surface = font.render(line, True, self.TEXT_COLOR)
                 popup_surface.blit(text_surface, (0, y_offset))
-            y_offset += 30
+            y_offset += font.get_height() + 10 # Add spacing between lines
 
         # Blit the clipped surface onto the screen
         self.screen.blit(popup_surface, text_area_rect.topleft)
