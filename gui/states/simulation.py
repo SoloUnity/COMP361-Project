@@ -4,6 +4,7 @@ import pygame._sdl2
 from gui.control_element.drop_down import DropDown
 from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
+from gui.control_element.bounding_box import BoundingBox
 from utils.paths import REGULAR, get_image, get_text_file
 from gui.states.tab_manager import TabManager
 #support resize
@@ -76,6 +77,10 @@ class Simulation:
         self.view_data_button = Button("View", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 75, ICON_W, S_ICON_H, VISIBILITY_ICON, 0.8)
 
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
+        
+        self.drag = BoundingBox(display, 40, 63, display.get_width() - 40, display.get_height() - 30)
+
+
 
 
     def draw_text(self, text, position, font, color=WHITE):
@@ -126,9 +131,8 @@ class Simulation:
         self.error_button.draw(self.display)
         self.view_data_button.draw(self.display)
         self.setting_button.draw(self.display)
-
+        self.drag.draw()
         
-
     def run(self, events):
         self.display.fill((30,33,38))
 
@@ -192,6 +196,7 @@ class Simulation:
         self.setting_button.update(events)
         self.error_button.update(events)
         self.view_data_button.update(events)
+        self.drag.update(events)
 
         self.draw_window()
 
