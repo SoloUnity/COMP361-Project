@@ -31,12 +31,12 @@ class PopupWindow:
         self.dragging_scrollbar = False
 
         # Colors
-        self.BACKGROUND_COLOR = (240, 240, 240)
+        self.BACKGROUND_COLOR = (36, 36, 36)
         self.BORDER_COLOR = (50, 50, 50)
         self.CLOSE_COLOR = (200, 50, 50)
         self.SCROLLBAR_COLOR = (150, 150, 150)
         self.SCROLLBAR_TRACK_COLOR = (200, 200, 200)
-        self.TEXT_COLOR = (0, 0, 0)
+        self.TEXT_COLOR = (255, 255, 255)
         self.DIM_COLOR = (0, 0, 0, 150)
 
         # Fonts
@@ -161,7 +161,8 @@ class PopupWindow:
             elif event.button == 4:  # Scroll up
                 self.scroll_position = min(self.scroll_position + self.scroll_speed, 0)
             elif event.button == 5:  # Scroll down
-                max_scroll = max(len(self.content_lines) * 30 - (self.height - 100), 0)
+                total_text_height = sum(font.get_height() + 10 for _, font in self.content_lines)
+                max_scroll = max(total_text_height - (self.height - 100), 0)
                 self.scroll_position = max(self.scroll_position - self.scroll_speed, -max_scroll)
 
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -194,8 +195,8 @@ class PopupWindow:
         self.screen.blit(dim_surface, (0, 0))
 
         # Popup box
-        pygame.draw.rect(self.screen, self.BACKGROUND_COLOR, self.popup_rect, border_radius=15)
-        pygame.draw.rect(self.screen, self.BORDER_COLOR, self.popup_rect, width=2, border_radius=15)
+        pygame.draw.rect(self.screen, self.BACKGROUND_COLOR, self.popup_rect)
+        pygame.draw.rect(self.screen, self.BORDER_COLOR, self.popup_rect, width=2)
 
         # Recalculate close button
         self.close_rect = pygame.Rect(self.popup_rect.right - 30, self.popup_rect.top + 10, 20, 20)
@@ -215,26 +216,36 @@ class PopupWindow:
         # Draw wrapped text onto popup_surface
         y_offset = self.scroll_position
         for line, font in self.content_lines:
-            if y_offset + 30 > 0 and y_offset < text_area_rect.height:
+            line_height = font.get_height() + 10
+            if y_offset + line_height > 0 and y_offset < text_area_rect.height:
                 text_surface = font.render(line, True, self.TEXT_COLOR)
                 popup_surface.blit(text_surface, (0, y_offset))
-            y_offset += font.get_height() + 10 # Add spacing between lines
+            y_offset += line_height
 
         # Blit the clipped surface onto the screen
         self.screen.blit(popup_surface, text_area_rect.topleft)
 
         # ------------------- SCROLLBAR -------------------
-        # Scrollbar track
-        pygame.draw.rect(self.screen, self.SCROLLBAR_TRACK_COLOR,
-                         (self.popup_rect.right - self.scrollbar_width, self.popup_rect.top + 50,
-                          self.scrollbar_width, self.popup_rect.height - 70))
+        # # Scrollbar track
+        # pygame.draw.rect(self.screen, self.SCROLLBAR_TRACK_COLOR,
+        #                  (self.popup_rect.right - self.scrollbar_width, self.popup_rect.top + 50,
+        #                   self.scrollbar_width - 10, self.popup_rect.height - 70))
 
         # Scrollbar thumb
+        # Ensure scrollbar is within bounds
         if len(self.content_lines) * 30 > self.height - 100:
-            scroll_ratio = min(1, (self.height - 100) / (len(self.content_lines) * 30))
-            thumb_height = int(scroll_ratio * (self.popup_rect.height - 70))
+            total_text_height = sum(font.get_height() + 10 for _, font in self.content_lines)
+            max_scroll = max(total_text_height - (self.height - 100), 1)  # Avoid division by zero
+
             scroll_area_height = self.popup_rect.height - 70
-            scroll_position_ratio = -self.scroll_position / max(len(self.content_lines) * 30 - (self.height - 100), 1)
+            scroll_ratio = min(1, (self.height - 100) / total_text_height)
+            thumb_height = max(int(scroll_ratio * scroll_area_height), 20)  # Ensure a minimum scrollbar size
+
+            # Ensure scrollbar doesn't go past bounds
+            scroll_position_ratio = -self.scroll_position / max_scroll
             thumb_y = self.popup_rect.top + 50 + int(scroll_position_ratio * (scroll_area_height - thumb_height))
-            self.scrollbar_rect = pygame.Rect(self.popup_rect.right - self.scrollbar_width, thumb_y, self.scrollbar_width, thumb_height)
+            thumb_y = max(self.popup_rect.top + 50, min(thumb_y, self.popup_rect.bottom - 20 - thumb_height))
+
+            self.scrollbar_rect = pygame.Rect(self.popup_rect.right - self.scrollbar_width, thumb_y, self.scrollbar_width - 5, thumb_height)
             pygame.draw.rect(self.screen, self.SCROLLBAR_COLOR, self.scrollbar_rect)
+

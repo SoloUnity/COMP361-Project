@@ -14,7 +14,7 @@ class Tab:
         self.rect = pygame.Rect((position * width) + 41, 33, width, height)
 
         # Colors
-        self.COLOR_SELECTED = (30, 30, 31)
+        self.COLOR_SELECTED = (70, 70, 70)
         self.COLOR_DEFAULT = (31, 30, 30)
         self.COLOR_TEXT = (255, 255, 255)
 

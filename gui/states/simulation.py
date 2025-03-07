@@ -5,6 +5,7 @@ from gui.control_element.drop_down import DropDown
 from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
 from utils.paths import REGULAR, get_image, get_text_file
+from gui.states.tab_manager import TabManager
 #support resize
 
 #constants for UI
@@ -18,6 +19,7 @@ class Simulation:
         self.display = display
         self.program_state_manager = program_state_manager
         self.sdl2_window = pygame._sdl2.video.Window.from_display_module()
+        self.tab_manager = TabManager()
 
         #MENU
         COLOR_MAIN_INACTIVE = (30,33,38)
@@ -53,7 +55,7 @@ class Simulation:
         self.help_button = Button("Help", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 180, MENU_Y, 45, MENU_H)
         self.show_help_popup = False
         # Popup instance
-        self.help_popup = PopupWindow(self.display, width=500, height=400, title="Help")
+        self.help_popup = PopupWindow(self.display, width=740, height=488, title="Documentation")
 
         self.close_window_button = Button("Close", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width() - 40, MENU_Y, ICON_W, MENU_H, CLOSE_ICON, 0.8)
 
@@ -82,6 +84,21 @@ class Simulation:
         self.display.blit(text_surface, position)
     
 
+    #tab methods
+    
+    def add_new_tab(self, tab_id, position):
+        self.tab_manager.add_tab(tab_id, position)
+
+    def close_tab(self, tab_id):
+        self.tab_manager.remove_tab(tab_id)
+
+    def switch_tab(self, tab_id):
+        self.tab_manager.select_tab(tab_id)
+
+    def draw_tabs(self):
+        for tab in self.tab_manager.tabs:
+            tab.draw(self.display)
+
     def draw_window(self):
 
         SIMULATION_WINDOW_X = 40
@@ -96,7 +113,8 @@ class Simulation:
         self.draw_text("Create new project to start simulation +", (499,342), FONT, LIGHT_GRAY)
         pygame.draw.rect(self.display, TAB_COLOR, (40,32, SIMULATION_WINDOW_W,32)) #tab
         pygame.draw.rect(self.display, WHITE, (40,32, SIMULATION_WINDOW_W + 1,32), 1) #tab border
-        
+        self.draw_tabs()  # Draw tab bar
+
         self.project_drop_down.draw(self.display)
         self.select_rover_drop_down.draw(self.display)
         self.add_rover_button.draw(self.display)
@@ -114,18 +132,40 @@ class Simulation:
     def run(self, events):
         self.display.fill((30,33,38))
 
+        #Project Dragdown Logic
+        project_dragdown_option = self.project_drop_down.update(events)
+        if project_dragdown_option >= 0:  # If a valid option was selected
+            selected_option = self.project_drop_down.options[project_dragdown_option]
+
+            if selected_option == "New Project":
+                self.add_new_tab(tab_id=len(self.tab_manager.tabs), position=len(self.tab_manager.tabs))
+                print(self.tab_manager.active_tab_index)
+
+        #  # If the current project's bounding box is not selected, enter selection mode
+        # current_project = self.tab_manager.tabs[self.tab_manager.active_tab_index].project
+        # if not current_project.bounding_box_selected:
+        #     # Call function to let user select bounding box on the map
+        #     current_project.select_bounding_box(user_selected_box)
+
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     pygame.quit()
                     sys.exit()
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if project_dragdown_option < 0: #prevents pressing tab0 when pressing dragdown
+                    for tab in self.tab_manager.tabs:
+                        if tab.check_click(event.pos):   
+                            self.switch_tab(tab.tab_id)
+                            print("switched to tab: " + str(tab.tab_id))
+
             # Forward events to the popup if it's visible
             if self.help_popup.visible:
                 self.help_popup.handle_event(event)
 
         #Title Bar Logic
-        project_dragdown_option = self.project_drop_down.update(events)
+            
         rover_select_dragdown_option = self.select_rover_drop_down.update(events)
         self.add_rover_button.update(events)
         self.help_button.update(events)
@@ -144,7 +184,7 @@ class Simulation:
         if self.help_button.is_clicked:
             self.show_help_popup = not self.show_help_popup  # Toggle the popup visibility
             if self.show_help_popup:
-                self.help_popup.show(get_text_file("gui/text_files/help_desc.txt"))
+                self.help_popup.show(get_text_file("../text_files/help_desc.txt"))
             else:
                 self.help_popup.hide()
 
@@ -163,4 +203,6 @@ class Simulation:
 
     def get_size(self):
         return self.width, self.height
+    
+    
         
