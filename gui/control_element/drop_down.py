@@ -74,34 +74,3 @@ class DropDown():
 
         return -1
     
-
-# pygame.init()
-# clock = pygame.time.Clock()
-# screen = pygame.display.set_mode((640, 480))
-
-# COLOR_INACTIVE = (40, 39, 44)
-# COLOR_ACTIVE = (100, 200, 255)
-# COLOR_LIST_INACTIVE = (255, 100, 100)
-# COLOR_LIST_ACTIVE = (255, 150, 150)
-
-# list1 = DropDown("File",["option 5", "option 1"], COLOR_INACTIVE, COLOR_ACTIVE, COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE, pygame.font.SysFont(None,18), "white", 3, 50, 50, 30, 20, 80)
-
-# run = True
-# while run:
-#     clock.tick(30)
-
-#     event_list = pygame.event.get()
-#     for event in event_list:
-#         if event.type == pygame.QUIT:
-#             run = False
-
-#     selected_option = list1.update(event_list)
-#     if selected_option >= 0:
-#         list1.main = list1.options[selected_option]
-
-#     screen.fill((255, 255, 255))
-#     list1.draw(screen)
-#     pygame.display.flip()
-    
-# pygame.quit()
-# exit()

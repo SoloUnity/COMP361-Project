@@ -55,27 +55,3 @@ class Button:
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.is_clicked = False
 
-# Example usage:
-# pygame.init()
-# screen = pygame.display.set_mode((640, 480))
-# clock = pygame.time.Clock()
-# font = pygame.font.SysFont(None, 30)
-# icon = pygame.image.load('path_to_icon.png')
-
-# button = Button("Click Me", (100, 100, 100), (150, 150, 150), font, (255, 255, 255), 5, 200, 200, 150, 50, icon)
-
-# running = True
-# while running:
-#     event_list = pygame.event.get()
-#     for event in event_list:
-#         if event.type == pygame.QUIT:
-#             running = False
-
-#     button.update(event_list)
-
-#     screen.fill((0, 0, 0))
-#     button.draw(screen)
-#     pygame.display.flip()
-#     clock.tick(60)
-
-# pygame.quit()
