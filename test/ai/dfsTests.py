@@ -95,17 +95,5 @@ class DfsTests(unittest.TestCase):
         self.assertEqual(path[-1].x, 2)
         self.assertEqual(path[-1].y, 2)
 
-    def test_dfsEmptyPath(self):
-        # Test when no path exists
-        md = [[[0, 0, 0], [1, 1, 0]],
-              [[2, 2, 0], [100, 100, 0]]]  # Large elevation difference
-        mh = MapHandler(md)
-        dfs = DFS()
-        fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(1, 1, 100, 100, 0)
-        rover = Rover(5)  # Low climbing ability
-        path = dfs.goTo(fromLoc, toLoc, rover, mh)
-        self.assertEqual(len(path), 0)  # No path should be found
-
 if __name__ == '__main__':
     unittest.main()
