@@ -1,6 +1,10 @@
 import unittest
 import sys
-sys.path.append('..\..\src/ai-algos')
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(project_root, 'src/ai-algos'))
+
 from MapHandler import MapHandler
 from DFS import DFS
 from Location import Location
