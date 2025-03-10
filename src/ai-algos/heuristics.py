@@ -1,4 +1,5 @@
 from math import sqrt, sin, asin
+import math
 
 def euclidean_distance(loc1, loc2) :
     """
@@ -9,12 +10,16 @@ def euclidean_distance(loc1, loc2) :
 
 def manhattan_distance(loc1, loc2) :
     """
-    Computes the Manhattan distance based on the coordinates of the locations in the map (their indices in the matrix)
-    This method considers that the map has a point every 10 meters
+    Computes a modified version of the Manhattan distance based on the coordinates of the 
+        locations in the map (their indices in the matrix)
+    This version accounts for the fact that rovers can move diagonally in the map
     """
-    return 10 * (abs(loc1.x - loc2.x) + abs(loc1.y - loc2.y))
+    diagonal = min(abs(loc1.x - loc2.x), abs(loc1.y - loc2.y))
+    horizontal= abs(loc1.x - loc2.x) - diagonal
+    vertical = abs(loc1.y - loc2.y) - diagonal
+    return diagonal + horizontal + vertical
 
-def physical_distance(loc1, loc2) :
+def geographical_distance(loc1, loc2) :
     """
     Computes the distance according to spherical geometry using the Haversine formula
     """
@@ -25,6 +30,55 @@ def physical_distance(loc1, loc2) :
 def altitude_difference(loc1, loc2) :
     return loc2.altitude - loc1.altitude
 
-def distance_heuristic(fromLoc, loc, toLoc, distance) :
-    return distance(fromLoc, loc) + distance(loc, toLoc)
+def distance_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the distance travelled so far using the euclidean distance
+    Estimates the distance to go by computing the euclidean distance between loc and toLoc
+    """
+    soFar = 0
+    for i in range(len(path) - 1) :
+        soFar += euclidean_distance(path[i], path[i+1])
+    soFar += euclidean_distance(path[len(path)-1], loc)
+    toGo = euclidean_distance(loc, toLoc)
+    return soFar + toGo
 
+def stable_altitude_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the average altitude change for each move in the provided path
+    Estimates the average altitude change in the path to go by taking the altitude difference between 
+        loc and toLoc and dividing by the modified Manhattan distance
+    """
+    soFar = 0
+    if (len(path) > 0): # avoid dividing by zero
+        for i in range(len(path) - 1) :
+            soFar += abs(altitude_difference(path[i], path[i+1]))
+        soFar += abs(altitude_difference(path[len(path)-1], loc))
+        soFar = soFar / len(path)
+    toGo = abs(altitude_difference(loc, toLoc)) / manhattan_distance(loc, toLoc)
+    return soFar + toGo
+
+def avg_altitude_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the average altitude of the provided path, loc and toLoc
+    Estimates the average altitude of the path to go by taking the middle value between loc.altitude and toLoc.altitude
+    Favors paths that with low altitudes
+    """
+    altitudes = map(lambda loc : loc.altitude, path)
+    soFar = (math.fsum(altitudes) + loc.altitude + toLoc.altitude) / (len(path) + 2)
+    toGo = (loc.altitude + toLoc.altitude) / 2
+    return soFar + toGo
+
+def heuristic(path, loc, toLoc, rover, mapHandler) :
+    """
+    TODO : parameterize the coefficients
+    path : list[Location]
+    loc : Location
+        location being evaluated by the heuristic
+    toLoc : Location
+        destination to reach
+    rover : Rover
+    mapHandler : MapHandler
+    """
+    return 2 * distance_h(path, loc, toLoc, rover, mapHandler) \
+        + stable_altitude_h(path, loc, t, rover, mapHandler) \
+        + avg_altitude_h(path, loc, toLoc, rover, mapHandler)

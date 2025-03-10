@@ -1,11 +1,14 @@
 import unittest
 import sys
-sys.path.append('..\..\src/ai-algos')
+sys.path.append('../../src/ai-algos')
 from MapHandler import MapHandler
 from BFS import BFS
 from Location import Location
 from Rover import Rover
 
+"""
+To run (from the test/ai directory) : python -m unittest bfsTests.py
+"""
 
 class bfsTests(unittest.TestCase):
 
@@ -80,6 +83,3 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[2].y, 1)
         self.assertEqual(path[3].y, 2)
         self.assertEqual(path[4].y, 3)
-
-if __name__ == '__main__':
-    unittest.main()
