@@ -4,8 +4,9 @@ import pygame
 # TODO: fix coordinates displaying when menu active
 
 class BoundingBox:
-    def __init__(self, screen, x, y, w, h):
+    def __init__(self, screen, simulation, x, y, w, h):
         self.screen = screen
+        self.simulation = simulation
         self.rect = pygame.Rect(x, y, w, h)
         self.active = False
         self.font = pygame.font.SysFont("arial", 13)
@@ -16,10 +17,11 @@ class BoundingBox:
 
     def get_coordinates(self):
         #Returns mouse coordinates relative to the bounding box.
-        if self.active:
-            mpos = pygame.mouse.get_pos()
+        mpos = pygame.mouse.get_pos()
+         
+        if self.rect.collidepoint(mpos):  # Ensure mouse is inside the bounding box
             return (mpos[0] - self.rect.x, mpos[1] - self.rect.y)
-        return None
+        return None # Ignore coordinates if outside
 
     def draw(self):
         #Draws the bounding box and the dragging selection if active.
@@ -59,4 +61,11 @@ class BoundingBox:
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.dragging = False
+                if self.start_coord and self.end_coord:
+                    # Ensure there is an active project before saving
+                    if self.simulation.active_project:
+                        self.simulation.active_project.bounding_box = (
+                            self.start_coord[0], self.start_coord[1],
+                            self.end_coord[0], self.end_coord[1]
+                        )
                 # print("End: "+ str(self.end_coord))  

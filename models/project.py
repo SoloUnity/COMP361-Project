@@ -9,6 +9,32 @@ class Project:
         self.created_on = created_on or datetime.now()
         self.last_saved_on = last_saved_on or self.created_on
 
+        self.bounding_box_selected = False
+        self.bounding_box = None  # Stores (x1, y1, x2, y2)
+        self.selecting_box = False
+        self.start_pos = None
+
+    def start_selection(self, start_pos):
+            self.selecting_box = True
+            self.start_pos = start_pos
+
+    def update_selection(self, current_pos):
+        
+        if self.selecting_box and self.start_pos is not None and current_pos is not None:
+            self.bounding_box = (*self.start_pos, *current_pos)  # (x1, y1, x2, y2)
+        else:
+            print(f"Invalid selection: start_pos={self.start_pos}, current_pos={current_pos}")
+
+        # if self.selecting_box:
+        #     self.bounding_box = (*self.start_pos, *current_pos)  # (x1, y1, x2, y2)
+
+    def stop_selection(self):
+        self.selecting_box = False
+        
+    def finalize_selection(self):
+        self.bounding_box_selected = True
+        self.selecting_box = False
+
 def get_project_by_id(project_id):
     conn = get_connection()
     conn.row_factory = sqlite3.Row
