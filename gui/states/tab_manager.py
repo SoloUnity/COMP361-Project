@@ -10,7 +10,7 @@ class TabManager:
     def add_tab(self, tab_id, position, project=None):
         """Add a new tab to the manager."""
         if project == None:
-            new_project = Project(len(self.tabs))  #create a new project
+            new_project = Project(tab_id)  #create a new project
             new_tab = Tab(new_project, tab_id, position)
         else:
             new_tab = Tab(project,tab_id, position)
