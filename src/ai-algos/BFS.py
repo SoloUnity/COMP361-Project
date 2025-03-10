@@ -37,7 +37,7 @@ class BFS(PathFinder):
             for n in mapHandler.getNeighbors(cx, cy):
                 currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
                 nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
-                if n not in visited and rover.canTraverse(currentLoc, nLoc) :
+                if rover.canTraverse(currentLoc, nLoc) and n not in visited :
                     q.append(Node(n, current))
         
         return []
@@ -84,7 +84,7 @@ class BFS(PathFinder):
                 for n in mapHandler.getNeighbors(cx, cy):
                     currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
                     nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
-                    if n not in visited and rover.canTraverse(currentLoc, nLoc) :
+                    if rover.canTraverse(currentLoc, nLoc) and n not in visited :
                         q.append(Node(n, current))
 
         return path
