@@ -2,7 +2,6 @@ import pygame, sys
 import os  
 from gui.states.login import Login
 from gui.states.simulation import Simulation
-from gui.states.test import Test
 from gui.states.state_manager import ProgramStateManager
 from utils.paths import REGULAR, get_image
 
@@ -21,7 +20,7 @@ from utils.paths import REGULAR, get_image
 class Program:
     def __init__(self):
         self.FPS = 120
-        self.SCREENWIDTH, self.SCREENHEIGHT = 1440, 720
+        self.SCREENWIDTH, self.SCREENHEIGHT = 1280, 720
         self.LOGIN_WIDTH = 600
         self.LOGIN_HEIGHT = 700
         
@@ -38,9 +37,8 @@ class Program:
         self.programStateManager = ProgramStateManager('login')
         self.login = Login(self.screen, self.programStateManager)
         self.simulation = Simulation(self.screen, self.programStateManager)
-        self.test = Test(self.screen, self.programStateManager)
 
-        self.states = {'login': self.login, 'simulation': self.simulation, "test": self.test}
+        self.states = {'login': self.login, 'simulation': self.simulation}
         self.fullscreen = False
 
     def run(self):
@@ -51,8 +49,7 @@ class Program:
                     pygame.quit()
                     sys.exit()
 
-            # current_state = self.programStateManager.get_state()
-            current_state = "test"
+            current_state = self.programStateManager.get_state()
             self.states[current_state].run(events)
 
             if current_state == 'simulation' and not self.fullscreen:
@@ -61,10 +58,6 @@ class Program:
                 
             elif current_state == 'login' and self.fullscreen:
                 self.screen = pygame.display.set_mode((self.LOGIN_WIDTH, self.LOGIN_HEIGHT))
-                self.fullscreen = False
-
-            elif current_state == "test" and self.fullscreen:
-                self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT))
                 self.fullscreen = False
 
             pygame.display.update()

@@ -15,7 +15,7 @@ LOGIN_BLUE = (8, 158, 222)
 # SCREENWIDTH, SCREENHEIGHT = 1440, 720
 # 8536, 4268
 
-class Test:
+class MapView:
     def __init__(self, display, program_state_manager):
         # Setup display for the login window
         self.display = display
@@ -29,9 +29,6 @@ class Test:
 
         self.path = []
 
-        # background = pygame.image.load('gui/images/mars.jpg')
-        # background = pygame.transform.scale(background, (self.display.get_width(), self.display.get_height()))
-        
         self.img_width, self.img_height = 1440, 720
         bg = self.draw_start_screen(self.img_width, self.img_height)
         
@@ -68,7 +65,7 @@ class Test:
     def start_search(self):
         print(self.path)
 
-    def run(self, events):
+    def update(self, events):
         # Draw background + start btn
         self.display.blit(self.static_surface, (0, 0))
         pygame.draw.rect(self.display, GRAY, self.start_btn, border_radius=40)
