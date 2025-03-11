@@ -12,7 +12,8 @@ GRAY = (200, 200, 200)
 OFF_WHITE = (217,217,217)
 WHITE = (255, 255, 255)
 LOGIN_BLUE = (8, 158, 222)
-SCREENWIDTH, SCREENHEIGHT = 1280, 720
+# SCREENWIDTH, SCREENHEIGHT = 1440, 720
+# 8536, 4268
 
 class Test:
     def __init__(self, display, program_state_manager):
@@ -28,13 +29,23 @@ class Test:
 
         self.path = []
 
-        background = pygame.image.load('gui/images/mars_center.jpg')
-        background = pygame.transform.scale(background, (SCREENWIDTH, SCREENHEIGHT))
+        # background = pygame.image.load('gui/images/mars.jpg')
+        # background = pygame.transform.scale(background, (self.display.get_width(), self.display.get_height()))
+        
+        self.img_width, self.img_height = 1440, 720
+        bg = self.draw_start_screen(self.img_width, self.img_height)
+        
+        # self.offset_x = (-760 / 1300 * self.img_width) + self.display.get_width() / 2
+        # self.offset_y = (-130 / 650 * self.img_height) + self.display.get_height() / 2
+        
+        self.offset_x = 0
+        self.offset_y = 0
+
         self.start_btn = pygame.Rect(0, 0, 100, 25)
         
-        self.static_surface = pygame.Surface((SCREENWIDTH, SCREENHEIGHT))
-        self.static_surface.blit(background, (0,0))
-
+        self.static_surface = pygame.Surface((self.display.get_width(), self.display.get_height()))
+        self.static_surface.blit(bg, (self.offset_x, self.offset_y))
+        
         self.start_btn = pygame.Rect(0, 0, 100, 25)
         pygame.draw.rect(self.display, GRAY, self.start_btn, border_radius=40)
 
@@ -45,9 +56,10 @@ class Test:
 
     def draw_start_screen(self, width, height):
         # Display bg image
-        background = pygame.image.load('gui/images/mars_center.jpg')
+        background = pygame.image.load('gui/images/mars.jpg')
         background = pygame.transform.scale(background, (width, height))
-        self.display.blit(background, (0,0))
+        return background
+        # self.display.blit(background, (0,0))
 
     def on_click(self, mouse_pos, lon, lat):
         pos = (mouse_pos[0] - 5, mouse_pos[1] - 5)
@@ -66,7 +78,12 @@ class Test:
             self.display.blit(self.marker, pos)
         
         mouse_pos = pygame.mouse.get_pos()
-        lon, lat = (mouse_pos[0] * 360 / SCREENWIDTH) - 180, -((mouse_pos[1] * 180 / SCREENHEIGHT) - 90)
+        
+        img_x = mouse_pos[0] - self.offset_x
+        img_y = mouse_pos[1] - self.offset_y
+
+        lat = 90 - (img_y / self.img_height) * 180
+        lon = (img_x / self.img_width) * 360 - 180
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP:
@@ -77,4 +94,4 @@ class Test:
                 
         # Update coords text bottom right
         text_surface = self.font.render(f"{lat}, {lon}", True, OFF_WHITE, TEXT_COLOR)
-        self.display.blit(text_surface, (SCREENWIDTH - text_surface.get_width(), SCREENHEIGHT - text_surface.get_height()))
+        self.display.blit(text_surface, (self.display.get_width() - text_surface.get_width(), self.display.get_height() - text_surface.get_height()))

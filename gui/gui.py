@@ -21,7 +21,7 @@ from utils.paths import REGULAR, get_image
 class Program:
     def __init__(self):
         self.FPS = 120
-        self.SCREENWIDTH, self.SCREENHEIGHT = 1280, 720
+        self.SCREENWIDTH, self.SCREENHEIGHT = 1440, 720
         self.LOGIN_WIDTH = 600
         self.LOGIN_HEIGHT = 700
         
@@ -64,7 +64,7 @@ class Program:
                 self.fullscreen = False
 
             elif current_state == "test" and self.fullscreen:
-                self.screen = pygame.display.set_mode((2260, 1080))
+                self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT))
                 self.fullscreen = False
 
             pygame.display.update()
