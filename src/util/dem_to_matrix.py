@@ -19,7 +19,6 @@ def dem_to_matrix(tif_path, start_point=(0, 0), max_rows=1000, max_cols=1000):
     
     new_transform = None
     with rasterio.open(tif_path) as dataset:
-        print("Resolution (x, y):", dataset.res)
         full_transform = dataset.transform
         window = Window(start_point[1], start_point[0], max_cols, max_rows)
         

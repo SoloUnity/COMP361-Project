@@ -5,6 +5,18 @@ from gui.states.simulation import Simulation
 from gui.states.state_manager import ProgramStateManager
 from utils.paths import REGULAR, get_image
 
+# pygame.init()
+
+# # Constants
+# FPS = 120
+# SCREENWIDTH, SCREENHEIGHT = 1280, 720
+# LOGIN_WIDTH = 600
+# LOGIN_HEIGHT = 700
+# FONT = pygame.font.Font("Inter/Inter-VariableFont_opsz,wght.ttf", 18)
+
+# # Set the environment variable to center the window
+# os.environ['SDL_VIDEO_CENTERED'] = '1'
+
 class Program:
     def __init__(self):
         self.FPS = 120
