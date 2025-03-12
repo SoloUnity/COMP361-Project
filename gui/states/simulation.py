@@ -81,7 +81,7 @@ class Simulation:
 
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
         
-        self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30)
+        self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30, 10000)
 
 
     def draw_text(self, text, position, font, color=WHITE):
