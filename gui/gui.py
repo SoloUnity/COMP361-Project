@@ -20,7 +20,7 @@ from utils.paths import REGULAR, get_image
 class Program:
     def __init__(self):
         self.FPS = 120
-        self.SCREENWIDTH, self.SCREENHEIGHT = 1280, 720
+        self.SCREENWIDTH, self.SCREENHEIGHT = 1480, 782
         self.LOGIN_WIDTH = 600
         self.LOGIN_HEIGHT = 700
         

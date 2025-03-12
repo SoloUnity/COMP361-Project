@@ -5,6 +5,7 @@ from gui.control_element.drop_down import DropDown
 from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
 from gui.control_element.bounding_box import BoundingBox
+from gui.control_element.map_view import MapView
 from utils.paths import REGULAR, get_image, get_text_file
 #support resize
 
@@ -77,7 +78,12 @@ class Simulation:
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
         
         self.drag = BoundingBox(display, 40, 63, display.get_width() - 40, display.get_height() - 30)
-
+        
+        SIMULATION_WINDOW_X = 40
+        SIMULATION_WINDOW_Y = 62
+        SIMULATION_WINDOW_W = self.display.get_width() - SIMULATION_WINDOW_X
+        SIMULATION_WINDOW_H = self.display.get_height() - SIMULATION_WINDOW_Y
+        self.map_view = MapView(display, SIMULATION_WINDOW_X, SIMULATION_WINDOW_Y, SIMULATION_WINDOW_W, SIMULATION_WINDOW_H)
 
 
 
@@ -99,6 +105,9 @@ class Simulation:
         pygame.draw.rect(self.display, SIMULATION_SCREEN_COLOR, simulation_window)
 
         self.draw_text("Create new project to start simulation +", (499,342), FONT, LIGHT_GRAY)
+        
+        coords = self.map_view.draw()
+
         pygame.draw.rect(self.display, TAB_COLOR, (40,32, SIMULATION_WINDOW_W,32)) #tab
         pygame.draw.rect(self.display, WHITE, (40,32, SIMULATION_WINDOW_W + 1,32), 1) #tab border
         
@@ -113,7 +122,8 @@ class Simulation:
         self.error_button.draw(self.display)
         self.view_data_button.draw(self.display)
         self.setting_button.draw(self.display)
-        self.drag.draw()
+        
+        self.drag.draw(coords)
         
     def run(self, events):
         self.display.fill((30,33,38))
@@ -123,6 +133,18 @@ class Simulation:
                 if event.key == pygame.K_BACKSPACE:
                     pygame.quit()
                     sys.exit()
+                
+                # Zoom into bouding box
+                if event.key == pygame.K_SPACE:
+                    offset = (40, 62)
+                    top_left, bot_right = self.drag.get_bounds()
+                    
+                    if top_left and bot_right:
+                        top_left = tuple(map(lambda i, j: i - j, top_left, offset))
+                        bot_right = tuple(map(lambda i, j: i - j, bot_right, offset))
+                    
+                    self.map_view.update(top_left, bot_right)
+                    self.drag.reset()
 
             # Forward events to the popup if it's visible
             if self.help_popup.visible:
@@ -157,7 +179,6 @@ class Simulation:
         self.error_button.update(events)
         self.view_data_button.update(events)
         self.drag.update(events)
-
         self.draw_window()
 
         # Display Help Popup Window
