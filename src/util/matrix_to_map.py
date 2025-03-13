@@ -1,5 +1,5 @@
 # Author: Matthew Spagnuolo
-from . import dem_to_matrix
+import dem_to_matrix
 import math
 
 MARS_DEM_RESOLUTION = 200 # meters between elevation points (calculated for the .tif file used using it's source's information)
@@ -102,6 +102,6 @@ def matrix_to_map(dem_matrix, max_slope=30):
 if __name__ == "__main__":
     tif_file = "Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif"
     print("Reading DEM...")
-    dem_matrix = dem_to_matrix.dem_to_matrix(tif_file, start_point=(0, 0), max_rows=1000, max_cols=1000)
+    dem_matrix,_ = dem_to_matrix.dem_to_matrix(tif_file, start_point=(0, 0), max_rows=1000, max_cols=1000)
     print("Generating map...")
     print(matrix_to_map(dem_matrix, 30)) # 30 degrees maximum slope (found this from the internet)
