@@ -10,8 +10,10 @@ from DFS import DFS
 from Location import Location
 from Rover import Rover
 
-class DfsTests(unittest.TestCase):
-    def testGoToSimple1(self):
+class DFSAlgorithmTests(unittest.TestCase):
+    
+    # Test DFS goTo() for a simple horizontal movement between two adjacent cells.
+    def testDFSGoToSimpleHorizontal(self):
         mapData = [[[0, 0, 0], [1, 1, 0]]]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
@@ -22,8 +24,9 @@ class DfsTests(unittest.TestCase):
         self.assertEqual(len(path), 2)
         self.assertEqual(path[0].y, 0)
         self.assertEqual(path[1].y, 1)
-
-    def testGoToSimple2(self):
+    
+    # Test DFS goTo() for simple horizontal movement covering multiple steps.
+    def testDFSGoToSimpleMultipleHorizontalSteps(self):
         mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
@@ -36,51 +39,57 @@ class DfsTests(unittest.TestCase):
         self.assertEqual(path[1].y, 2)
         self.assertEqual(path[2].y, 3)
         
-    def testVisitAllSimple1(self):
+    # Test DFS visitAll() for a single target.
+    def testDFSVisitAllSingleTarget(self):
         mapData = [[[0, 0, 0], [1, 1, 0]]]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
         fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(0, 1, 1, 1, 0)
+        targetLoc = Location(0, 1, 1, 1, 0)
         rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [toLoc], rover, mapHandler)
+        path = dfs.visitAll(fromLoc, [targetLoc], rover, mapHandler)
         self.assertEqual(len(path), 2)
         self.assertEqual(path[0].y, 0)
         self.assertEqual(path[1].y, 1)
         
-    def testVisitAllSimple2(self):
+    # Test DFS visitAll() for a single target with multiple horizontal steps.
+    def testDFSVisitAllSingleTargetMultipleSteps(self):
         mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
         fromLoc = Location(0, 1, 1, 1, 0)
-        toLoc = Location(0, 3, 3, 3, 0)
+        targetLoc = Location(0, 3, 3, 3, 0)
         rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [toLoc], rover, mapHandler)
+        path = dfs.visitAll(fromLoc, [targetLoc], rover, mapHandler)
         self.assertEqual(len(path), 3)
         self.assertEqual(path[0].y, 1)
         self.assertEqual(path[1].y, 2)
         self.assertEqual(path[2].y, 3)
         
-    def testVisitAllSimple3(self):
+    # Test DFS visitAll() for multiple targets ensuring the correct visiting order.
+    def testDFSVisitAllMultipleTargets(self):
         mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
         fromLoc = Location(0, 1, 1, 1, 0)
-        toLoc1 = Location(0, 3, 3, 3, 0)
-        toLoc2 = Location(0, 0, 0, 0, 0)
+        targetLoc1 = Location(0, 3, 3, 3, 0)
+        targetLoc2 = Location(0, 0, 0, 0, 0)
         rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [toLoc2, toLoc1], rover, mapHandler)
+        path = dfs.visitAll(fromLoc, [targetLoc2, targetLoc1], rover, mapHandler)
         self.assertEqual(len(path), 5)
         self.assertEqual(path[0].y, 1)
         self.assertEqual(path[1].y, 0)
         self.assertEqual(path[2].y, 1)
         self.assertEqual(path[3].y, 2)
         self.assertEqual(path[4].y, 3)
-
-    def testDfsComplexGraph(self):
-        mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0]],
-                   [[3, 3, 0], [4, 4, 0], [5, 5, 0]],
-                   [[6, 6, 0], [7, 7, 0], [8, 8, 0]]]
+    
+    # Test DFS goTo() on a complex grid to verify a valid path is found.
+    def testDFSComplexGraphPathfinding(self):
+        mapData = [
+            [[0, 0, 0], [1, 1, 0], [2, 2, 0]],
+            [[3, 3, 0], [4, 4, 0], [5, 5, 0]],
+            [[6, 6, 0], [7, 7, 0], [8, 8, 0]]
+        ]
         mapHandler = MapHandler(mapData)
         dfs = DFS()
         fromLoc = Location(0, 0, 0, 0, 0)

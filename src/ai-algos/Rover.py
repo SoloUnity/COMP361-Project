@@ -2,11 +2,13 @@ from Location import Location
 from heuristics import euclidean_distance
 
 class Rover:
+
     def __init__(self, maxSlope = 30.0):
         self.maxSlope = maxSlope
         import math
         self._tanMaxSlope = math.tan(math.radians(maxSlope))
     
+    # Angle based approach to determine if the rover can traverse from one location to another
     def canTraverse(self, fromLoc, toLoc):
         distance = euclidean_distance(fromLoc, toLoc)
         if distance == 0:

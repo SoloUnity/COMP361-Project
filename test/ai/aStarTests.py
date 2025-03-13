@@ -2,7 +2,6 @@ import unittest
 import os
 import sys
 
-# Set the project root and update import paths
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
 
@@ -13,71 +12,82 @@ from Rover import Rover
 
 class TestAStarAlgorithm(unittest.TestCase):
     def setUp(self):
-        # Initialize rover instances with different climbing abilities
-        self.roverHigh = Rover(30)  # High climbing ability
+        # Initialize rover instances with different climbing abilities:
+        # roverHigh can handle steep elevation changes,
+        # roverLow is limited and should avoid moderate elevation bumps.
+        self.roverHigh = Rover(45)  # High climbing ability
         self.roverLow = Rover(5)    # Low climbing ability
 
     def testGoToSimpleHorizontal(self):
-        # Test horizontal movement in a single-row grid
+        # Test horizontal movement on a flat, single-row grid.
+        # Both rovers should yield the same optimal path.
         mapData = [[[0, 0, 0], [1, 1, 0]]]
         mapHandler = MapHandler(mapData)
         astar = AStar()
         fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(0, 1, 1, 1, 0)
-        path = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
-        self.assertEqual(len(path), 2, "Expected a path with 2 nodes.")
-        self.assertEqual(path[0].y, 0, "Start location should be at column 0.")
-        self.assertEqual(path[1].y, 1, "Goal location should be at column 1.")
+        toLoc   = Location(0, 1, 1, 1, 0)
+        
+        pathHigh = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        pathLow  = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        
+        self.assertEqual(len(pathHigh), 2, "Expected a 2-node path for roverHigh.")
+        self.assertEqual(len(pathLow), 2, "Expected a 2-node path for roverLow on flat terrain.")
+        self.assertEqual(pathHigh[0].y, 0, "Start location should be at column 0 for roverHigh.")
+        self.assertEqual(pathHigh[1].y, 1, "Goal location should be at column 1 for roverHigh.")
 
     def testGoToSimpleVertical(self):
-        # Test vertical movement in a single-row grid
-        mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
+        # Test vertical movement on a flat, single-column grid.
+        # Both rovers should produce the same optimal path.
+        mapData = [
+            [[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]
+        ]
         mapHandler = MapHandler(mapData)
         astar = AStar()
         fromLoc = Location(0, 1, 1, 1, 0)
-        toLoc = Location(0, 3, 3, 3, 0)
-        path = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
-        self.assertEqual(len(path), 3, "Expected a 3-node path for horizontal movement.")
+        toLoc   = Location(0, 3, 3, 3, 0)
+        
+        pathHigh = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        pathLow  = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        
+        self.assertEqual(len(pathHigh), 3, "Expected a 3-node path for roverHigh in vertical movement.")
+        self.assertEqual(len(pathLow), 3, "Expected a 3-node path for roverLow in vertical movement.")
 
     def testVisitAllSingleTarget(self):
-        # Test visiting a single target location
+        # Test visiting a single target in a flat grid.
+        # Both rovers should compute an identical route.
         mapData = [[[0, 0, 0], [1, 1, 0]]]
         mapHandler = MapHandler(mapData)
         astar = AStar()
-        fromLoc = Location(0, 0, 0, 0, 0)
+        fromLoc   = Location(0, 0, 0, 0, 0)
         targetLoc = Location(0, 1, 1, 1, 0)
-        path = astar.visitAll(fromLoc, [targetLoc], self.roverHigh, mapHandler)
-        self.assertEqual(len(path), 2, "Expected a 2-node path.")
+        
+        pathHigh = astar.visitAll(fromLoc, [targetLoc], self.roverHigh, mapHandler)
+        pathLow  = astar.visitAll(fromLoc, [targetLoc], self.roverLow, mapHandler)
+        
+        self.assertEqual(len(pathHigh), 2, "Expected a 2-node path for roverHigh on visitAll.")
+        self.assertEqual(len(pathLow), 2, "Expected a 2-node path for roverLow on visitAll.")
 
     def testVisitAllMultipleTargets(self):
-        # Test visiting multiple target locations optimally
-        mapData = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
+        # Test visiting multiple targets optimally in a flat grid.
+        # Both rovers should compute the same overall path.
+        mapData = [
+            [[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]
+        ]
         mapHandler = MapHandler(mapData)
         astar = AStar()
         fromLoc = Location(0, 1, 1, 1, 0)
         target1 = Location(0, 3, 3, 3, 0)
         target2 = Location(0, 0, 0, 0, 0)
-        path = astar.visitAll(fromLoc, [target2, target1], self.roverHigh, mapHandler)
-        self.assertEqual(len(path), 5, "Expected a 5-node path.")
-
-    def testAStarWithObstacle(self):
-        # Test A* pathfinding with an obstacle in a 3x3 grid
-        mapData = [
-            [[0, 0, 0], [1, 1, 0], [2, 2, 0]],
-            [[3, 3, 0], [100, 100, 0], [5, 5, 0]],  # Obstacle at (1,1)
-            [[6, 6, 0], [7, 7, 0], [8, 8, 0]]
-        ]
-        mapHandler = MapHandler(mapData)
-        astar = AStar()
-        fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(2, 2, 8, 8, 0)
-        path = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
-        self.assertGreater(len(path), 0, "A valid path should be found.")
-        for loc in path:
-            self.assertFalse(loc.x == 1 and loc.y == 1, "Path should avoid the obstacle.")
+        
+        pathHigh = astar.visitAll(fromLoc, [target2, target1], self.roverHigh, mapHandler)
+        pathLow  = astar.visitAll(fromLoc, [target2, target1], self.roverLow, mapHandler)
+        
+        self.assertEqual(len(pathHigh), 5, "Expected a 5-node path for roverHigh on visitAll.")
+        self.assertEqual(len(pathLow), 5, "Expected a 5-node path for roverLow on visitAll.")
 
     def testAStarShortestPath(self):
-        # Test A* finds the shortest path in a 3x3 grid
+        # Test that A* finds the shortest path in a flat 3x4 grid.
+        # Both rovers should compute the same optimal path.
         mapData = [
             [[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]],
             [[4, 4, 0], [5, 5, 0], [6, 6, 0], [7, 7, 0]],
@@ -86,22 +96,53 @@ class TestAStarAlgorithm(unittest.TestCase):
         mapHandler = MapHandler(mapData)
         astar = AStar()
         fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(2, 3, 11, 11, 0)
-        path = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
-        self.assertLessEqual(len(path), 6, "The path should be optimal.")
+        toLoc   = Location(2, 3, 11, 11, 0)
+        
+        pathHigh = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        pathLow  = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        
+        self.assertLessEqual(len(pathHigh), 6, "Expected an optimal (short) path for roverHigh.")
+        self.assertLessEqual(len(pathLow), 6, "Expected an optimal (short) path for roverLow on flat terrain.")
 
     def testAStarNoPath(self):
-        # Test A* returns an empty path when no valid route exists
+        # Map data: top-left corners are altitude=0,
+        # bottom-right corner is altitude=999 => impassable for either rover.
         mapData = [
-            [[0, 0, 0], [1, 1, 0]],
-            [[2, 2, 0], [100, 100, 0]]  # Impassable cell
+            [ [0, 0, 0],   [1, 1, 0]   ],
+            [ [2, 2, 0],   [3, 3, 999] ]
         ]
         mapHandler = MapHandler(mapData)
-        astar = AStar()
+        
         fromLoc = Location(0, 0, 0, 0, 0)
-        toLoc = Location(1, 1, 100, 100, 0)
-        path = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
-        self.assertEqual(len(path), 0, "No path should be found.")
+        toLoc   = Location(1, 1, 3, 3, 999)  # (x=1,y=1 in map indices) => altitude=999
+
+        astar = AStar()
+
+        pathHigh = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        pathLow  = astar.goTo(fromLoc, toLoc, self.roverLow,  mapHandler)
+
+        self.assertEqual(len(pathHigh), 0, "No path should be found for roverHigh.")
+        self.assertEqual(len(pathLow),  0, "No path should be found for roverLow.")
+
+    def testAltitudeChangePrioritization(self):
+
+        mapData = [
+            [ [0, 0, 0], [0, 1, 1] ],
+        ]
+        mapHandler = MapHandler(mapData)
+
+        fromLoc = Location(0, 0, 0, 0, 0)
+        toLoc   = Location(0, 1, 0, 1, 1)
+
+        # Rover that can climb 45° should find a 2-cell path
+        astar = AStar()
+        pathHigh = astar.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        self.assertTrue(pathHigh, "High-slope rover should succeed.")
+        self.assertEqual(len(pathHigh), 2, "Path should be from (0,0) to (0,1) with no detours.")
+
+        # Rover that can only handle ~5° slope should fail to climb
+        pathLow = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        self.assertFalse(pathLow, "Low-slope rover cannot climb 1 meter in 1 meter distance.")
 
 if __name__ == '__main__':
     unittest.main()

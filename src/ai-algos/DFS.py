@@ -39,7 +39,7 @@ class DFS(PathFinder):
 
         stack.append(Node((fromLoc.x, fromLoc.y), None))
         while(len(stack) > 0):
-            current = stack.pop()  # Pop from the end (LIFO - Last In First Out)
+            current = stack.pop()  # Pop from the end LIFO
             
             if current.coord not in visited:
                 visited.append(current.coord)
