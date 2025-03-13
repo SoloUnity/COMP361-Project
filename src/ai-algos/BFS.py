@@ -34,9 +34,9 @@ class BFS(PathFinder):
                 return [fromLoc] + self.getPath(current, mapHandler)
             
             cx, cy = current.coord
+            currentLoc = mapHandler.getLocationAt(cx, cy)
             for n in mapHandler.getNeighbors(cx, cy):
-                currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
-                nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
+                nLoc = mapHandler.getLocationAt(n[0], n[1])
                 if rover.canTraverse(currentLoc, nLoc) and n not in visited :
                     q.append(Node(n, current))
         
@@ -81,9 +81,9 @@ class BFS(PathFinder):
 
             else :
                 cx, cy = current.coord
+                currentLoc = mapHandler.getLocationAt(cx, cy)
                 for n in mapHandler.getNeighbors(cx, cy):
-                    currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
-                    nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
+                    nLoc = mapHandler.getLocationAt(n[0], n[1])
                     if rover.canTraverse(currentLoc, nLoc) and n not in visited :
                         q.append(Node(n, current))
 
@@ -101,7 +101,7 @@ class BFS(PathFinder):
         current = toLoc
         while current.parent != None :
             cx, cy = current.coord
-            path.append(Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2]))
+            path.append(mapHandler.getLocationAt(cx, cy))
             current = current.parent
         path.reverse()
         return path

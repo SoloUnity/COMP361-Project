@@ -13,7 +13,7 @@ To run (from the test/ai directory) : python -m unittest bfsTests.py
 class bfsTests(unittest.TestCase):
 
     def test_goToSimple1(self):
-        md = [[[0, 0, 0], [1, 1, 0]]]
+        md = [[[(0, 0), (0, 0), 0], [(0, 0), (1, 1), 0]]]
         mh = MapHandler(md)
         bfs = BFS()
         fromLoc = Location(0, 0, 0, 0, 0)
@@ -27,7 +27,7 @@ class bfsTests(unittest.TestCase):
 
 
     def test_goToSimple2(self):
-        md = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
+        md = [[[(0, 0), (0, 0), 0], [(0, 0), (1, 1), 0], [(0, 0), (2, 2), 0], [(0, 0), (3, 3), 0]]]
         mh = MapHandler(md)
         bfs = BFS()
         fromLoc = Location(0, 1, 1, 1, 0)
@@ -41,7 +41,7 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[2].y, 3)
 
     def test_visitAllSimple1(self):
-        md = [[[0, 0, 0], [1, 1, 0]]]
+        md = [[[(0, 0), (0, 0), 0], [(0, 0), (1, 1), 0]]]
         mh = MapHandler(md)
         bfs = BFS()
         fromLoc = Location(0, 0, 0, 0, 0)
@@ -54,7 +54,7 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[1].y, 1)
         
     def test_visitAllSimple2(self):
-        md = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
+        md = [[[(0, 0), (0, 0), 0], [(0, 0), (1, 1), 0], [(0, 0), (2, 2), 0], [(0, 0), (3, 3), 0]]]
         mh = MapHandler(md)
         bfs = BFS()
         fromLoc = Location(0, 1, 1, 1, 0)
@@ -68,7 +68,7 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[2].y, 3)
 
     def test_visitAllSimple3(self) :
-        md = [[[0, 0, 0], [1, 1, 0], [2, 2, 0], [3, 3, 0]]]
+        md = [[[(0, 0), (0, 0), 0], [(0, 0), (1, 1), 0], [(0, 0), (2, 2), 0], [(0, 0), (3, 3), 0]]]
         mh = MapHandler(md)
         bfs = BFS()
         fromLoc = Location(0, 1, 1, 1, 0)

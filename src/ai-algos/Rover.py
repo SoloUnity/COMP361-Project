@@ -11,5 +11,6 @@ class Rover:
         distance = euclidean_distance(fromLoc, toLoc)
         if distance == 0:
             return True
-        slope = abs(fromLoc.altitude - toLoc.altitude) / distance
-        return slope <= self._tanMaxSlope
+        slope = 100 * abs(fromLoc.altitude - toLoc.altitude) / distance
+        return slope <= self.maxSlope
+        #return slope <= self._tanMaxSlope
