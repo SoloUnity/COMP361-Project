@@ -81,8 +81,8 @@ def avg_altitude_h(path, loc, toLoc, rover, mapHandler) :
 
 def solar_exposure_h(path, loc, toLoc, rover, mapHandler) :
     exposures = map(lambda l : north_south_slope(l, mapHandler))
-    soFar = (math.fsum(exposures)) 
-
+    soFar = (math.fsum(exposures) + north_south_slope(loc) + north_south_slope(toLoc)) / (len(path) + 2) 
+    return soFar
 
 def heuristic(path, loc, toLoc, rover, mapHandler) :
     """
