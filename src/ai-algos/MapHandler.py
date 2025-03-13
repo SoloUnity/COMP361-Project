@@ -10,11 +10,13 @@ class MapHandler:
         # Altitude is now stored at index 1 of the cell.
         return self.map[x][y][1]
     
+    # check if in bounds
     def isValidLocation(self, x, y):
         return 0 <= x < self.width and 0 <= y < self.height
     
     def getNeighbors(self, x, y):
         neighbors = []
+        # Vertical horizontal diagonal
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
             newX, newY = x + dx, y + dy
             if self.isValidLocation(newX, newY):

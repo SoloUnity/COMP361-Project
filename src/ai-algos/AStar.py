@@ -4,57 +4,65 @@ import math
 from Location import Location
 from Pathfinder import PathFinder
 
+class Node:
+    def __init__(self, coord: (int, int), parent):
+        self.coord = coord
+        self.parent = parent
+
+    # for unit tests
+    def __lt__(self, other):
+        return self.coord < other.coord
+
 class AStar(PathFinder):
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
-        openSet = []
-        gScore = {}
-        fScore = {}
-        cameFrom = {}
+        priorityQueue = []
+        gScore = {} # g(n), cost from start to n
+        fScore = {} # f(n), g(n) + h(n)
 
-        startNode = (fromLoc.x, fromLoc.y)
+        startNode = Node((fromLoc.x, fromLoc.y), None)  # changed to use Node
         goalNode  = (toLoc.x, toLoc.y)
 
-        # Initialize the start node
-        heapq.heappush(openSet, (self.heuristic(startNode, goalNode), startNode))
-        gScore[startNode] = 0
-        fScore[startNode] = self.heuristic(startNode, goalNode)
+        # start node
+        heapq.heappush(priorityQueue, (self.heuristic(startNode.coord, goalNode), startNode))
+        gScore[startNode.coord] = 0
+        fScore[startNode.coord] = self.heuristic(startNode.coord, goalNode)
 
-        closedSet = set()
+        visited = set()
 
-        while openSet:
-            _, current = heapq.heappop(openSet)
-            if current == goalNode:
-                # Goal reached – reconstruct the path
-                return self.reconstructPath(cameFrom, current, mapHandler)
+        while priorityQueue:
+            _, current = heapq.heappop(priorityQueue)
 
-            closedSet.add(current)
-            cx, cy = current
-            currentLoc = self.coordToLocation(current, mapHandler)
+            # reached the goal coordinate, reconstruct the path
+            if current.coord == goalNode:
+                return self.reconstructPath(current, mapHandler)
 
-            # Check all neighbors
-            for neighbor in mapHandler.getNeighbors(cx, cy):
-                if neighbor in closedSet:
+            visited.add(current.coord)
+            cx, cy = current.coord
+            currentLoc = self.coordToLocation(current.coord, mapHandler)
+
+            # check all neighbours
+            for neighbour in mapHandler.getNeighbors(cx, cy):
+                if neighbour in visited:
                     continue
 
-                neighborLoc = self.coordToLocation(neighbor, mapHandler)
+                neighbourLoc = self.coordToLocation(neighbour, mapHandler)
 
-                # Check if the rover can traverse from currentLoc to neighborLoc
-                if not rover.canTraverse(currentLoc, neighborLoc):
+                # Check if the rover can traverse from currentLoc to neighbourLoc
+                if not rover.canTraverse(currentLoc, neighbourLoc):
                     continue
 
-                # Compute the cost so far + cost of stepping to neighbor
-                tentativeGScore = gScore[current] + self.cost(currentLoc, neighborLoc, rover)
-                if (neighbor not in gScore) or (tentativeGScore < gScore[neighbor]):
-                    cameFrom[neighbor] = current
-                    gScore[neighbor]   = tentativeGScore
-                    fScore[neighbor]   = tentativeGScore + self.heuristic(neighbor, goalNode)
+                # Compute the cost so far + cost of stepping to neighbour
+                tentativeGScore = gScore[current.coord] + self.cost(currentLoc, neighbourLoc, rover)
+                if (neighbour not in gScore) or (tentativeGScore < gScore[neighbour]):
+                    gScore[neighbour]   = tentativeGScore
+                    fScore[neighbour]   = tentativeGScore + self.heuristic(neighbour, goalNode)
 
-                    # Push onto openSet if not already in it
-                    if not any(neighbor == node for _, node in openSet):
-                        heapq.heappush(openSet, (fScore[neighbor], neighbor))
+                    # Push onto priorityQueue if not already in it
+                    if not any(neighbour == node.coord for _, node in priorityQueue):
+                        heapq.heappush(priorityQueue, (fScore[neighbour], Node(neighbour, current)))
 
-        # If no route is found
+        # no path found
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
@@ -95,11 +103,11 @@ class AStar(PathFinder):
         altitudeDiff = neighborLoc.altitude - currentLoc.altitude
         return 1 + max(0, altitudeDiff)
 
-    def reconstructPath(self, cameFrom, current, mapHandler):
-        path = [current]
-        while current in cameFrom:
-            current = cameFrom[current]
-            path.append(current)
+    def reconstructPath(self, current, mapHandler):
+        path = []
+        while current is not None:
+            path.append(current.coord)
+            current = current.parent
         path.reverse()
 
         # Convert (x, y) tuples to Location objects

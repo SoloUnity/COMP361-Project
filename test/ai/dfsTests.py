@@ -13,6 +13,12 @@ from Rover import Rover
 
 class DFSAlgorithmTests(unittest.TestCase):
     
+    def setUp(self):
+        # Percentage based approach:
+        # A 1 m altitude change over 10 m horizontal (each coordinate is 10 m apart) results in a 10% slope.
+        self.roverHigh = Rover(10)
+        self.roverLow = Rover(0)
+
     def testDFSGoToSimpleHorizontal(self):
         # Each cell: [ (lon, lat), altitude ]
         mapData = [[[(0,0), 0],
@@ -114,6 +120,30 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.assertEqual(path[0].y, 0)
         self.assertEqual(path[-1].x, 2)
         self.assertEqual(path[-1].y, 2)
+    
+    def testAltitudeChangePrioritization(self):
+        mapData = [
+            [
+                [(0,0), 0],
+                [(0,1), 1]
+            ]
+        ]
+
+        mapHandler = MapHandler(mapData)
+        dfs = DFS()
+        
+        fromLoc = Location(0, 0, 0, 0, 0)
+        toLoc   = Location(0, 1, 0, 1, 0)
+
+        # High-slope rover: should be able to climb (path found)
+        pathHigh = dfs.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        self.assertTrue(pathHigh)
+        self.assertEqual(len(pathHigh), 2)
+
+        # Low-slope rover: should fail to climb (no path)
+        pathLow = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        self.assertFalse(pathLow)
+
 
 if __name__ == '__main__':
     unittest.main()

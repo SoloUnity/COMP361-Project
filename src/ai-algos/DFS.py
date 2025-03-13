@@ -8,18 +8,18 @@ class DFS(PathFinder):
         stack = []
         visited = []
 
-        # Start from fromLoc
+        # starting coordinates fromLoc
         stack.append(Node((fromLoc.x, fromLoc.y), None))
 
         while len(stack) > 0:
             current = stack.pop()
             visited.append(current.coord)
 
-            # If we've reached the destination
+            # if destitantion coordinate reached
             if current.coord == (toLoc.x, toLoc.y):
                 return [fromLoc] + self.getPath(current, mapHandler)
 
-            # Otherwise, explore neighbors
+            # explore neighbours
             cx, cy = current.coord
             currentLoc = mapHandler.getLocationAt(cx, cy)
             for n in mapHandler.getNeighbors(cx, cy):
@@ -27,10 +27,12 @@ class DFS(PathFinder):
                 if rover.canTraverse(currentLoc, nLoc) and n not in visited:
                     stack.append(Node(n, current))
 
-        # If no path is found
+        # no path found
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
+        # toVisit is a list of Locations
+
         path = [fromLoc]
         if len(toVisit) == 0:
             return path
@@ -41,30 +43,29 @@ class DFS(PathFinder):
         stack = []
         visited = []
 
-        # Start from fromLoc
+        # starting coordinates fromLoc
         stack.append(Node((fromLoc.x, fromLoc.y), None))
 
         while len(stack) > 0:
             current = stack.pop()
             visited.append(current.coord)
 
-            # If we've reached one of the targets
+            # one coordinate reached
             if current.coord in leftToVisit:
                 leftToVisit.remove(current.coord)
-                # Add this partial path to the final path
+                # add partial path to the final path
                 path += self.getPath(current, mapHandler)
 
-                # If we've visited all required locations, return
                 if len(leftToVisit) == 0:
                     return path
 
-                # Otherwise, restart the DFS from the current node
+                # restart DFS from current node
                 stack.clear()
                 visited.clear()
                 stack.append(Node(current.coord, None))
 
             else:
-                # Continue DFS normally
+                # continue DFS
                 cx, cy = current.coord
                 currentLoc = mapHandler.getLocationAt(cx, cy)
                 for n in mapHandler.getNeighbors(cx, cy):
@@ -85,6 +86,7 @@ class DFS(PathFinder):
         path.reverse()
         return path
 
+# TODO make a common node class after merging everything together
 class Node:
     def __init__(self, coord: (int, int), parent):
         self.coord = coord
