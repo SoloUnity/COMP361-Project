@@ -7,11 +7,6 @@ from Pathfinder import PathFinder
 class AStar(PathFinder):
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
-        """
-        Finds a path from fromLoc to toLoc using the A* algorithm.
-        Accounts for the new map data layout by using mapHandler.getLocationAt(...)
-        to construct Location objects.
-        """
         openSet = []
         gScore = {}
         fScore = {}
@@ -63,11 +58,6 @@ class AStar(PathFinder):
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        """
-        Finds a path from 'fromLoc' that visits each location in 'toVisit' 
-        in some order, using repeated A* searches for each next closest target.
-        (Sample implementation - you can adjust how you pick the next target.)
-        """
         path = [fromLoc]
         if not toVisit:
             return path
@@ -102,39 +92,22 @@ class AStar(PathFinder):
         return path
 
     def cost(self, currentLoc, neighborLoc, rover):
-        """
-        Basic movement cost:
-          - 1 "step" cost
-          - plus additional cost if climbing up (positive altitude difference).
-        """
         altitudeDiff = neighborLoc.altitude - currentLoc.altitude
         return 1 + max(0, altitudeDiff)
 
     def reconstructPath(self, cameFrom, current, mapHandler):
-        """
-        Reconstructs the path by walking backward from the 'goal' node 
-        to the start node using 'cameFrom' dict, then reversing it.
-        """
         path = [current]
         while current in cameFrom:
             current = cameFrom[current]
             path.append(current)
         path.reverse()
 
-        # Convert (x, y) -> Location objects
+        # Convert (x, y) tuples to Location objects
         return [self.coordToLocation(coord, mapHandler) for coord in path]
 
     def heuristic(self, a, b):
-        """
-        A simple Manhattan distance heuristic. 
-        Alternatively, you might consider diagonal moves or slope.
-        """
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def coordToLocation(self, coord, mapHandler):
-        """
-        Convert a (x, y) tuple into a Location object via mapHandler.getLocationAt(...).
-        This ensures we handle the new 3-element list [ (lat,lon), (elev,slope), obstacle ].
-        """
         x, y = coord
         return mapHandler.getLocationAt(x, y)
