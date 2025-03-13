@@ -3,25 +3,8 @@ from Pathfinder import PathFinder
 from Location import Location
 
 class DFS(PathFinder):
-    """
-    Depth-first search algorithm
-    """
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
-        """
-        Finds a path from fromLoc to toLoc in the provided submap and for the provided rover
-            using DFS
-        Returns a list of locations corresponding to the path
-
-        fromLoc : Location
-            the starting location
-        toLoc : Location
-            the destination
-        rover : Rover
-            the rover for which the method searches a path
-        mapHandler : MapHandler
-            handler for the map subsection the methods searches in
-        """
 
         stack = []
         visited = []
@@ -46,20 +29,6 @@ class DFS(PathFinder):
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        """
-        Finds a path from fromLoc that visits the locations in toVisit in the provided submap and for the provided rover
-            using DFS
-        Returns a list of locations corresponding to the path
-
-        fromLoc : Location
-            the starting location
-        toVisit : List[Location]
-            the destination
-        rover : Rover
-            the rover for which the method searches a path
-        mapHandler : MapHandler
-            handler for the map subsection the methods searches in
-        """
         
         path = [fromLoc]
         if (len(toVisit) == 0): return path
@@ -94,13 +63,6 @@ class DFS(PathFinder):
         return path
 
     def getPath(self, toLoc, mapHandler):
-        """
-        Computes the path starting at toLoc following the parent of each Node (fromLoc is excluded)
-        Returns a list of Locations
-
-        toLoc : Node
-        mapHandler : MapHandler
-        """
         path = []
         current = toLoc
         while current.parent != None:
