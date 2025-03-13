@@ -7,6 +7,11 @@ from Pathfinder import PathFinder
 class AStar(PathFinder):
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
+        """
+        Finds a path from fromLoc to toLoc using the A* algorithm.
+        Accounts for the new map data layout by using mapHandler.getLocationAt(...)
+        to construct Location objects.
+        """
         openSet = []
         gScore = {}
         fScore = {}
@@ -15,7 +20,7 @@ class AStar(PathFinder):
         startNode = (fromLoc.x, fromLoc.y)
         goalNode  = (toLoc.x, toLoc.y)
 
-        # Push the start node into the priority queue.
+        # Initialize the start node
         heapq.heappush(openSet, (self.heuristic(startNode, goalNode), startNode))
         gScore[startNode] = 0
         fScore[startNode] = self.heuristic(startNode, goalNode)
@@ -25,65 +30,43 @@ class AStar(PathFinder):
         while openSet:
             _, current = heapq.heappop(openSet)
             if current == goalNode:
-                # Goal reached – reconstruct the path!
+                # Goal reached – reconstruct the path
                 return self.reconstructPath(cameFrom, current, mapHandler)
 
             closedSet.add(current)
             cx, cy = current
             currentLoc = self.coordToLocation(current, mapHandler)
 
-            # Check all valid neighbors
+            # Check all neighbors
             for neighbor in mapHandler.getNeighbors(cx, cy):
                 if neighbor in closedSet:
                     continue
 
                 neighborLoc = self.coordToLocation(neighbor, mapHandler)
-                
-                # If the rover can't traverse from current to neighbor, skip.
+
+                # Check if the rover can traverse from currentLoc to neighborLoc
                 if not rover.canTraverse(currentLoc, neighborLoc):
                     continue
 
-                # Compute G-score if we take this step
+                # Compute the cost so far + cost of stepping to neighbor
                 tentativeGScore = gScore[current] + self.cost(currentLoc, neighborLoc, rover)
                 if (neighbor not in gScore) or (tentativeGScore < gScore[neighbor]):
                     cameFrom[neighbor] = current
                     gScore[neighbor]   = tentativeGScore
                     fScore[neighbor]   = tentativeGScore + self.heuristic(neighbor, goalNode)
 
-                    # Only push onto openSet if not already there
-                    # (or you could just push duplicates and let the fScore check weed them out)
+                    # Push onto openSet if not already in it
                     if not any(neighbor == node for _, node in openSet):
                         heapq.heappush(openSet, (fScore[neighbor], neighbor))
 
-        # If we exhaust the open set, no route was found.
+        # If no route is found
         return []
-
-    def cost(self, currentLoc, neighborLoc, rover):
-        """
-        Basic movement cost:
-          - 1 "step" cost
-          - plus any positive altitude climb
-        """
-        altitudeDiff = neighborLoc.altitude - currentLoc.altitude
-        return 1 + max(0, altitudeDiff)
-
-    def reconstructPath(self, cameFrom, current, mapHandler):
-        path = [current]
-        while current in cameFrom:
-            current = cameFrom[current]
-            path.append(current)
-        path.reverse()
-
-        # Convert (x, y) back to Location objects
-        return [
-            self.coordToLocation(coord, mapHandler)
-            for coord in path
-        ]
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
         """
-        Example routine that tries to 'visitAll' locations in some minimal path order.
-        (Not used by the given tests but included for completeness.)
+        Finds a path from 'fromLoc' that visits each location in 'toVisit' 
+        in some order, using repeated A* searches for each next closest target.
+        (Sample implementation - you can adjust how you pick the next target.)
         """
         path = [fromLoc]
         if not toVisit:
@@ -97,36 +80,61 @@ class AStar(PathFinder):
             closestPath = None
             minDistance = float('inf')
 
+            # Find the next reachable location with the shortest path
             for locCoord in leftToVisit:
                 toLoc = self.coordToLocation(locCoord, mapHandler)
                 tempPath = self.goTo(currentLoc, toLoc, rover, mapHandler)
-                # If we found a path and it's shorter than all known so far
+                # If found a path and it's shorter than our current best
                 if tempPath and (len(tempPath) - 1) < minDistance:
                     minDistance = len(tempPath) - 1
                     closestLoc = locCoord
                     closestPath = tempPath
 
             if closestLoc:
-                # Extend the overall path (skipping the duplicated start of new path)
+                # Append the new path (minus the duplicate start) to our total path
                 path.extend(closestPath[1:])
                 leftToVisit.remove(closestLoc)
                 currentLoc = self.coordToLocation(closestLoc, mapHandler)
             else:
-                # If we can't reach any remaining location, break out (partial or no coverage).
+                # Can't reach any of the remaining targets
                 break
 
         return path
 
+    def cost(self, currentLoc, neighborLoc, rover):
+        """
+        Basic movement cost:
+          - 1 "step" cost
+          - plus additional cost if climbing up (positive altitude difference).
+        """
+        altitudeDiff = neighborLoc.altitude - currentLoc.altitude
+        return 1 + max(0, altitudeDiff)
+
+    def reconstructPath(self, cameFrom, current, mapHandler):
+        """
+        Reconstructs the path by walking backward from the 'goal' node 
+        to the start node using 'cameFrom' dict, then reversing it.
+        """
+        path = [current]
+        while current in cameFrom:
+            current = cameFrom[current]
+            path.append(current)
+        path.reverse()
+
+        # Convert (x, y) -> Location objects
+        return [self.coordToLocation(coord, mapHandler) for coord in path]
+
     def heuristic(self, a, b):
-        # Manhattan distance
+        """
+        A simple Manhattan distance heuristic. 
+        Alternatively, you might consider diagonal moves or slope.
+        """
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def coordToLocation(self, coord, mapHandler):
+        """
+        Convert a (x, y) tuple into a Location object via mapHandler.getLocationAt(...).
+        This ensures we handle the new 3-element list [ (lat,lon), (elev,slope), obstacle ].
+        """
         x, y = coord
-        cell = mapHandler.map[x][y]  # e.g. [ originalX, originalY, altitude ]
-        return Location(x, y, cell[0], cell[1], cell[2])
-
-    # def canTraverseAltitudeOnly(self, currentLoc, neighborLoc, maxClimb):
-    #     if (neighborLoc.altitude - currentLoc.altitude) > maxClimb:
-    #         return False
-    #     return True
+        return mapHandler.getLocationAt(x, y)

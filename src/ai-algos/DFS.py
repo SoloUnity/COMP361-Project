@@ -5,69 +5,82 @@ from Location import Location
 class DFS(PathFinder):
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
-
         stack = []
         visited = []
 
+        # Start from fromLoc
         stack.append(Node((fromLoc.x, fromLoc.y), None))
-        while(len(stack) > 0):
+
+        while len(stack) > 0:
             current = stack.pop()
-            
-            if current.coord not in visited:
-                visited.append(current.coord)
-                
-                if (current.coord == (toLoc.x, toLoc.y)):
-                    return [fromLoc] + self.getPath(current, mapHandler)
-                
-                cx, cy = current.coord
-                for n in mapHandler.getNeighbors(cx, cy):
-                    currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
-                    nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
-                    if n not in visited and rover.canTraverse(currentLoc, nLoc):
-                        stack.append(Node(n, current))
-        
+            visited.append(current.coord)
+
+            # If we've reached the destination
+            if current.coord == (toLoc.x, toLoc.y):
+                return [fromLoc] + self.getPath(current, mapHandler)
+
+            # Otherwise, explore neighbors
+            cx, cy = current.coord
+            currentLoc = mapHandler.getLocationAt(cx, cy)
+            for n in mapHandler.getNeighbors(cx, cy):
+                nLoc = mapHandler.getLocationAt(n[0], n[1])
+                if rover.canTraverse(currentLoc, nLoc) and n not in visited:
+                    stack.append(Node(n, current))
+
+        # If no path is found
         return []
 
     def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        
         path = [fromLoc]
-        if (len(toVisit) == 0): return path
+        if len(toVisit) == 0:
+            return path
 
-        leftToVisit = set(map(lambda loc: (loc.x, loc.y), toVisit))
+        # Convert the list of Locations to a set of (x,y) for easy membership checks
+        leftToVisit = set((loc.x, loc.y) for loc in toVisit)
+
         stack = []
         visited = []
 
+        # Start from fromLoc
         stack.append(Node((fromLoc.x, fromLoc.y), None))
-        while(len(stack) > 0):
-            current = stack.pop()  # Pop from the end LIFO
-            
-            if current.coord not in visited:
-                visited.append(current.coord)
-                
-                if current.coord in leftToVisit:
-                    leftToVisit.remove(current.coord)
-                    path += self.getPath(current, mapHandler)
-                    if (len(leftToVisit) == 0): return path
 
-                    stack.clear()
-                    visited.clear()
-                    stack.append(Node(current.coord, None))
-                else:
-                    cx, cy = current.coord
-                    for n in mapHandler.getNeighbors(cx, cy):
-                        currentLoc = Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2])
-                        nLoc = Location(n[0], n[1], mapHandler.map[n[0]][n[1]][0], mapHandler.map[n[0]][n[1]][1], mapHandler.map[n[0]][n[1]][2])
-                        if n not in visited and rover.canTraverse(currentLoc, nLoc):
-                            stack.append(Node(n, current))
+        while len(stack) > 0:
+            current = stack.pop()
+            visited.append(current.coord)
 
+            # If we've reached one of the targets
+            if current.coord in leftToVisit:
+                leftToVisit.remove(current.coord)
+                # Add this partial path to the final path
+                path += self.getPath(current, mapHandler)
+
+                # If we've visited all required locations, return
+                if len(leftToVisit) == 0:
+                    return path
+
+                # Otherwise, restart the DFS from the current node
+                stack.clear()
+                visited.clear()
+                stack.append(Node(current.coord, None))
+
+            else:
+                # Continue DFS normally
+                cx, cy = current.coord
+                currentLoc = mapHandler.getLocationAt(cx, cy)
+                for n in mapHandler.getNeighbors(cx, cy):
+                    nLoc = mapHandler.getLocationAt(n[0], n[1])
+                    if rover.canTraverse(currentLoc, nLoc) and n not in visited:
+                        stack.append(Node(n, current))
+
+        # If we can't reach all targets, return what we have so far
         return path
 
     def getPath(self, toLoc, mapHandler):
         path = []
         current = toLoc
-        while current.parent != None:
+        while current.parent is not None:
             cx, cy = current.coord
-            path.append(Location(cx, cy, mapHandler.map[cx][cy][0], mapHandler.map[cx][cy][1], mapHandler.map[cx][cy][2]))
+            path.append(mapHandler.getLocationAt(cx, cy))
             current = current.parent
         path.reverse()
         return path
