@@ -30,6 +30,17 @@ def geographical_distance(loc1, loc2) :
 def altitude_difference(loc1, loc2) :
     return loc2.altitude - loc1.altitude
 
+def north_south_slope(loc, mapHandler) :
+    """
+    Computes the slope on the north-south axis for the provided location
+    """
+    newY = loc.y
+    if (loc.lat > 0 and mapHandler.isValidLocation(loc.x, loc.y-1)) :
+        newY -= 1
+    elif (loc.lat < 0 and mapHandler.isValidLocation(loc.x, loc.y+1)) :
+        newY += 1
+    return (mapHandler.getAltitude(loc.x, loc.y) - mapHandler.getAltitude(loc.x, newY)) / 10
+
 def distance_h(path, loc, toLoc, rover, mapHandler) :
     """
     Computes the distance travelled so far using the euclidean distance
@@ -63,10 +74,15 @@ def avg_altitude_h(path, loc, toLoc, rover, mapHandler) :
     Estimates the average altitude of the path to go by taking the middle value between loc.altitude and toLoc.altitude
     Favors paths that with low altitudes
     """
-    altitudes = map(lambda loc : loc.altitude, path)
+    altitudes = map(lambda l : l.altitude, path)
     soFar = (math.fsum(altitudes) + loc.altitude + toLoc.altitude) / (len(path) + 2)
     toGo = (loc.altitude + toLoc.altitude) / 2
-    return soFar + toGo
+    return (soFar + toGo)/2
+
+def solar_exposure_h(path, loc, toLoc, rover, mapHandler) :
+    exposures = map(lambda l : north_south_slope(l, mapHandler))
+    soFar = (math.fsum(exposures)) 
+
 
 def heuristic(path, loc, toLoc, rover, mapHandler) :
     """
