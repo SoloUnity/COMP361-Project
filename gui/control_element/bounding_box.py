@@ -58,14 +58,14 @@ class BoundingBox:
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.active:
+                if self.active and not self.simulation.active_project.selection_made:
                     self.start_coord = self.get_coordinates()
                     self.end_coord = self.start_coord
                     self.dragging = True
                     self.exceeded = False
 
             elif event.type == pygame.MOUSEMOTION and self.dragging:
-                if self.active:
+                if self.active and not self.simulation.active_project.selection_made:
                     new_end = self.get_coordinates()
                     if new_end:
                         new_width = abs(new_end[0] - self.start_coord[0])
@@ -80,10 +80,18 @@ class BoundingBox:
                             self.exceeded = True
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                self.dragging = False
-                if self.start_coord and self.end_coord and not self.exceeded:
-                    if self.simulation.active_project:
-                        self.simulation.active_project.bounding_box = (
-                            self.start_coord[0], self.start_coord[1],
-                            self.end_coord[0], self.end_coord[1]
-                        )
+                if self.dragging and not self.simulation.active_project.selection_made:
+                    self.dragging = False
+                    if self.start_coord and self.end_coord and not self.exceeded:
+                        if self.simulation.active_project:
+                            self.simulation.active_project.bounding_box = (
+                                min(self.start_coord[0], self.end_coord[0]), 
+                                min(self.start_coord[1], self.end_coord[1]), 
+                                max(self.start_coord[0], self.end_coord[0]), 
+                                max(self.start_coord[1], self.end_coord[1])
+                            )
+                            self.simulation.active_project.selection_made = True  # Mark as finalized
+                            print(f"Finalized bounding box: {self.simulation.active_project.bounding_box}")
+              
+
+

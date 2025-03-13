@@ -13,6 +13,7 @@ class Project:
         self.bounding_box = None  # Stores (x1, y1, x2, y2)
         self.selecting_box = False
         self.start_pos = None
+        self.selection_made = False # When the bounding box has been determined but not confirmed
 
     def start_selection(self, start_pos):
             self.selecting_box = True
@@ -24,16 +25,15 @@ class Project:
             self.bounding_box = (*self.start_pos, *current_pos)  # (x1, y1, x2, y2)
         else:
             print(f"Invalid selection: start_pos={self.start_pos}, current_pos={current_pos}")
-
-        # if self.selecting_box:
-        #     self.bounding_box = (*self.start_pos, *current_pos)  # (x1, y1, x2, y2)
-
-    def stop_selection(self):
-        self.selecting_box = False
         
     def finalize_selection(self):
-        self.bounding_box_selected = True
-        self.selecting_box = False
+        # check if start and end coord are not equal
+        if self.bounding_box:
+            self.bounding_box_selected = True
+            self.selecting_box = False
+            print(f"Final bounding box: {self.bounding_box}")  # Debugging
+        else:
+            print("Warning: No bounding box selected before finalizing!")
 
 def get_project_by_id(project_id):
     conn = get_connection()

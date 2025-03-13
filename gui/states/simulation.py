@@ -82,6 +82,8 @@ class Simulation:
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
         
         self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30, 10000)
+        self.confirm_bb = Button("Confirm", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
+        self.reset_bb = Button("Reset", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 + 80, display.get_height() - 100, 70, 50)
 
 
     def draw_text(self, text, position, font, color=WHITE):
@@ -91,13 +93,20 @@ class Simulation:
     
 
     #tab methods
-    
     def add_new_tab(self, tab_id, position):
-        new_project = Project(tab_id)  # Create a new project
+        new_project = Project(project_id=tab_id)  # Create a new project
         self.projects.append(new_project)
         self.tab_manager.add_tab(tab_id, position, new_project)
         self.active_project = new_project  # Update active project reference
-        print("switched to project " + str(tab_id))
+
+        # Reset bounding box selection
+        # self.drag.update_rect(40, 63, self.display.get_width() - 40, self.display.get_height() - 30)
+        print("Switched to project " + str(tab_id) + "by adding new tab")
+
+        # Reset bounding box selection
+        self.drag.start_coord = None
+        self.drag.end_coord = None
+        self.drag.dragging = False
 
 
     def close_tab(self, tab_id):
@@ -106,17 +115,26 @@ class Simulation:
     def switch_tab(self, tab_id):
         self.tab_manager.select_tab(tab_id)
         self.active_project = self.projects[tab_id]
-        print("switched to project " + str(tab_id))
+        print("Switched to project " + str(tab_id) + " by click")
 
-         # Reset bounding box selection
+        # Reset bounding box selection
+        # print("Resetting bounding box coords after switching tabs")
         self.drag.start_coord = None
         self.drag.end_coord = None
         self.drag.dragging = False
 
         # If the new project has a saved bounding box, restore it
         if self.active_project.bounding_box:
-            self.drag.start_coord = (self.active_project.bounding_box[0], self.active_project.bounding_box[1])
-            self.drag.end_coord = (self.active_project.bounding_box[2], self.active_project.bounding_box[3])
+            x1, y1, x2, y2 = self.active_project.bounding_box
+            print(x1,y1,x2,y2)
+            if (x1, y1) != (x2, y2):  # Ensure it's a valid box
+                self.drag.start_coord = (x1, y1)
+                self.drag.end_coord = (x2, y2)
+                print("Restoring:", self.drag.start_coord, self.drag.end_coord)
+            else:
+                print("Warning: Stored bounding box has identical start and end coordinates.")
+                self.drag.start_coord = None
+                self.drag.end_coord = None
 
     def draw_tabs(self):
         for tab in self.tab_manager.tabs:
@@ -151,62 +169,38 @@ class Simulation:
         self.error_button.draw(self.display)
         self.view_data_button.draw(self.display)
         self.setting_button.draw(self.display)
-    
-        
+
     def run(self, events):
         self.display.fill((30,33,38))
 
-        #Project Dragdown Logic
+        # Project Dragdown Logic
         project_dragdown_option = self.project_drop_down.update(events)
         if project_dragdown_option >= 0:  # If a valid option was selected
             selected_option = self.project_drop_down.options[project_dragdown_option]
-
             if selected_option == "New Project":
                 self.add_new_tab(tab_id=len(self.tab_manager.tabs), position=len(self.tab_manager.tabs))
-                print(self.tab_manager.active_tab_index)
-                
-
-        #  # If the current project's bounding box is not selected, enter selection mode
-        # current_project = self.tab_manager.tabs[self.tab_manager.active_tab_index].project
-        # if not current_project.bounding_box_selected:
-        #     # Call function to let user select bounding box on the map
-        #     current_project.select_bounding_box(user_selected_box)
-
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE:
-                    pygame.quit()
-                    sys.exit()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if project_dragdown_option < 0: #prevents pressing tab0 when pressing dragdown
-                    for tab in self.tab_manager.tabs:
-                        if tab.check_click(event.pos):   
-                            self.switch_tab(tab.tab_id)
-                            print("switched to tab: " + str(tab.tab_id))
-
-
-            # Forward events to the popup if it's visible
-            if self.help_popup.visible:
-                self.help_popup.handle_event(event)
-
-        #Title Bar Logic
             
+        current_project = self.active_project   
+
+         # Process UI events
         rover_select_dragdown_option = self.select_rover_drop_down.update(events)
         self.add_rover_button.update(events)
         self.help_button.update(events)
         self.close_window_button.update(events)
         self.restore_window_button.update(events)
         self.minimize_window_button.update(events)
-        
-        #Handle Window Control
+        self.setting_button.update(events)
+        self.error_button.update(events)
+        self.view_data_button.update(events) 
+
+        # Handle Window Control
         if self.close_window_button.is_clicked:
             pygame.quit()
             sys.exit()
         if self.minimize_window_button.is_clicked:
             self.sdl2_window.minimize()
-
-        #Handle help button
+        
+        # Handle help button
         if self.help_button.is_clicked:
             self.show_help_popup = not self.show_help_popup  # Toggle the popup visibility
             if self.show_help_popup:
@@ -214,31 +208,73 @@ class Simulation:
             else:
                 self.help_popup.hide()
 
-        #Side Bar Logic
-        self.setting_button.update(events)
-        self.error_button.update(events)
-        self.view_data_button.update(events)
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
+                pygame.quit()
+                sys.exit()
 
-        if self.active_project and not self.active_project.bounding_box_selected:
-            self.drag.update(events)  # Handle bounding box drawing
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if project_dragdown_option < 0: #prevents pressing tab0 when pressing dragdown
+                    for tab in self.tab_manager.tabs:
+                        if tab.check_click(event.pos):   
+                            self.switch_tab(tab.tab_id)
 
-            for event in events:
+            # If popup is open, let it handle events
+            if self.help_popup.visible:
+                self.help_popup.handle_event(event)
+
+            if current_project and not current_project.bounding_box_selected:
+                # print("Dragging mouse for bounding box is active")
+                self.drag.update(events)
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if self.drag.active:  # Ensure click is within the bounding box area
-                        self.active_project.start_selection(self.drag.get_coordinates())
+                    # Prevent new selection if finalized
+                    # Ensure click is within the bounding box area
+                    if self.drag.active and not current_project.selection_made:  
+                        coords = self.drag.get_coordinates()
+                        if coords is not None:  # Prevent accidental None assignments
+                            current_project.start_selection(coords)
 
-                elif event.type == pygame.MOUSEMOTION and self.active_project.selecting_box:
-                    self.active_project.update_selection(self.drag.get_coordinates())
+                elif event.type == pygame.MOUSEMOTION and current_project.selecting_box:
+                    # Prevent modification if finalized
+                    if not current_project.selection_made:
+                        coords = self.drag.get_coordinates()
+                        if coords is not None and coords != current_project.bounding_box:
+                            current_project.update_selection(coords)
 
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if self.active_project.selecting_box:
-                        # Add a confirm button
-                        self.active_project.finalize_selection()
-                        print(f"Bounding box set: {self.active_project.bounding_box}")
+                    # Prevent re-finalizing
+                    if current_project.selecting_box and not current_project.selection_made:
+                        if self.drag.start_coord != self.drag.end_coord:
+                            current_project.selection_made = True
+                        else:
+                            print("Invalid selection: start and end coordinates are the same.")
         
+        # Handle confirm and reset bounding box buttons
+        self.confirm_bb.update(events)
+        self.reset_bb.update(events)
 
+        if self.confirm_bb.is_clicked and current_project.selection_made:
+            current_project.finalize_selection()
+            print(f"Bounding box set: {current_project.project_id, current_project.bounding_box}")
+            current_project.selection_made = False
+
+        elif self.reset_bb.is_clicked and current_project.selection_made:
+            self.active_project.selection_made = False
+            self.active_project.bounding_box = None  # Clear the stored bounding box
+            self.drag.start_coord = None
+            self.drag.end_coord = None
+            self.drag.dragging = False
+        
+        # Draw UI elements
         self.draw_window()
+
+        # Draw bounding box selection
         self.drag.draw()
+
+        # Draw bounding box buttons if selection is made
+        if current_project and current_project.selection_made:
+            self.reset_bb.draw(self.display)
+            self.confirm_bb.draw(self.display)
 
         # Display Help Popup Window
         if self.show_help_popup:
