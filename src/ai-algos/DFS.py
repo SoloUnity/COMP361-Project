@@ -2,6 +2,12 @@ from collections import deque
 from Pathfinder import PathFinder
 from Location import Location
 
+# TODO make a common node class after merging everything together
+class Node:
+    def __init__(self, coord: (int, int), parent):
+        self.coord = coord
+        self.parent = parent
+
 class DFS(PathFinder):
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
@@ -73,7 +79,7 @@ class DFS(PathFinder):
                     if rover.canTraverse(currentLoc, nLoc) and n not in visited:
                         stack.append(Node(n, current))
 
-        # If we can't reach all targets, return what we have so far
+        # return what we have if not all locations are reached
         return path
 
     def getPath(self, toLoc, mapHandler):
@@ -85,9 +91,3 @@ class DFS(PathFinder):
             current = current.parent
         path.reverse()
         return path
-
-# TODO make a common node class after merging everything together
-class Node:
-    def __init__(self, coord: (int, int), parent):
-        self.coord = coord
-        self.parent = parent
