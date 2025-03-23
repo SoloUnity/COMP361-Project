@@ -30,6 +30,8 @@ class Program:
         self.fullscreen = False
 
     def run(self):
+        last_state = None # track last state to avoid unnecessary updates
+
         while True:
             events = pygame.event.get()
             for event in events:
@@ -38,15 +40,16 @@ class Program:
                     sys.exit()
 
             current_state = self.programStateManager.get_state()
-            self.states[current_state].run(events)
+            
 
-            if current_state == 'simulation' and not self.fullscreen:
-                self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT), pygame.NOFRAME)
-                self.fullscreen = True
+            if current_state != last_state:
+                if current_state == 'simulation':
+                    self.screen = pygame.display.set_mode((self.SCREENWIDTH, self.SCREENHEIGHT), pygame.NOFRAME)
                 
-            elif current_state == 'login' and self.fullscreen:
-                self.screen = pygame.display.set_mode((self.LOGIN_WIDTH, self.LOGIN_HEIGHT))
-                self.fullscreen = False
+                elif current_state == 'login':
+                    self.screen = pygame.display.set_mode((self.LOGIN_WIDTH, self.LOGIN_HEIGHT))
+                last_state = current_state # Update last_state to prevent unnecessary updates
 
+            self.states[current_state].run(events)
             pygame.display.update()
             self.clock.tick(self.FPS)

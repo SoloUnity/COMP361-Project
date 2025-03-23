@@ -24,6 +24,17 @@ class Simulation:
         self.tab_manager = TabManager()
         self.projects = []
         self.active_project = None  # Currently selected project
+        self.fullscreen = False  # Tracks fullscreen state
+
+        # Initialize map area (x, y, width, height)
+        self.map_x = 40
+        self.map_y = 30
+        self.map_width = self.display.get_width() - 40  # Default value (adjust based on UI)
+        self.map_height = self.display.get_height() - 30 # Default value (adjust based on UI)
+
+        # Store previous values for resize calculations
+        self.prev_map_width = self.map_width
+        self.prev_map_height = self.map_height
 
         #MENU
         COLOR_MAIN_INACTIVE = (30,33,38)
@@ -90,8 +101,67 @@ class Simulation:
         """Draw text on the screen at a given position with a specified color."""
         text_surface = font.render(text, True, color)
         self.display.blit(text_surface, position)
-    
 
+    def toggle_fullscreen(self):
+        """Toggle fullscreen mode."""
+        self.fullscreen = not self.fullscreen
+        if self.fullscreen:
+            self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        else:
+            self.screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
+        self.update_ui_on_resize()
+        self.draw_window()
+    
+    def update_ui_on_resize(self):
+        """Update UI elements dynamically after resizing."""
+        width, height = self.display.get_size()
+
+        # Update button positions dynamically
+        self.close_window_button.rect.topleft = (width - 40, self.close_window_button.rect.y)
+        self.restore_window_button.rect.topleft = (width - 75, self.restore_window_button.rect.y)
+        self.minimize_window_button.rect.topleft = (width - 110, self.minimize_window_button.rect.y)
+
+        self.error_button.rect.topleft = (self.error_button.rect.x, height - 110)
+        self.view_data_button.rect.topleft = (self.view_data_button.rect.x, height - 75)
+        self.setting_button.rect.topleft = (self.setting_button.rect.x, height - 40)
+
+        self.drag = BoundingBox(self.display, self, 40, 63, width - 40, height - 30, 10000)
+
+        self.confirm_bb.rect.topleft = (width // 2 - 80, height - 100)
+        self.reset_bb.rect.topleft = (width // 2 + 80, height - 100)
+
+        # Get new map area dimensions (adjust based on your layout)
+        self.map_x = 40  # Example: Left padding for the map
+        self.map_y = 30  # Example: Top padding for the map
+        self.map_width = width - 40  # Example: Width excluding side padding
+        self.map_height = width - 30  # Example: Height excluding top/bottom UI
+
+        # **Update the bounding box after resizing**
+        if self.active_project and self.active_project.bounding_box:
+            x1, y1, x2, y2 = self.active_project.bounding_box
+
+            # Scale bounding box based on map area changes
+            new_x1 = int(x1 * self.map_width / self.prev_map_width) + self.map_x
+            new_y1 = int(y1 * self.map_height / self.prev_map_height) + self.map_y
+            new_x2 = int(x2 * self.map_width / self.prev_map_width) + self.map_x
+            new_y2 = int(y2 * self.map_height / self.prev_map_height) + self.map_y
+
+            self.active_project.bounding_box = (new_x1, new_y1, new_x2, new_y2)
+        
+        # Store previous map width & height
+        self.prev_map_width, self.prev_map_height = self.map_width, self.map_height
+
+        if self.fullscreen:
+            self.select_rover_drop_down.set_position(546,3)
+
+        elif not self.fullscreen:
+            self.select_rover_drop_down.set_position(483, 3)
+        
+        
+    def get_map_area(self):
+        """Return the x, y, width, and height of the map section."""
+        return (self.map_x, self.map_y, self.map_width, self.map_height)
+    
     #tab methods
     def add_new_tab(self, tab_id, position):
         new_project = Project(project_id=tab_id)  # Create a new project
@@ -147,11 +217,15 @@ class Simulation:
         SIMULATION_WINDOW_W = self.display.get_width() - 40
         SIMULATION_WINDOW_H = self.display.get_height() - 30
         SIMULATION_SCREEN_COLOR = (48,48,49)
+        if self.fullscreen:
+            prompt_x = 562
+        else: 
+            prompt_x = 499
         simulation_window = pygame.Rect(SIMULATION_WINDOW_X,SIMULATION_WINDOW_Y,
         SIMULATION_WINDOW_W,SIMULATION_WINDOW_H)
         pygame.draw.rect(self.display, SIMULATION_SCREEN_COLOR, simulation_window)
 
-        self.draw_text("Create new project to start simulation +", (499,342), FONT, LIGHT_GRAY)
+        self.draw_text("Create new project to start simulation +", (prompt_x,342), FONT, LIGHT_GRAY)
         pygame.draw.rect(self.display, TAB_COLOR, (40,32, SIMULATION_WINDOW_W,32)) #tab
         pygame.draw.rect(self.display, WHITE, (40,32, SIMULATION_WINDOW_W + 1,32), 1) #tab border
         self.draw_tabs()  # Draw tab bar
@@ -208,6 +282,11 @@ class Simulation:
             else:
                 self.help_popup.hide()
 
+        if self.restore_window_button.is_clicked:
+            self.toggle_fullscreen()
+            self.restore_window_button.is_clicked = False  # Reset after toggle
+
+
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
                 pygame.quit()
@@ -218,6 +297,9 @@ class Simulation:
                     for tab in self.tab_manager.tabs:
                         if tab.check_click(event.pos):   
                             self.switch_tab(tab.tab_id)
+
+            if event.type == pygame.VIDEORESIZE:  # Handle window resize properly
+                self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
             # If popup is open, let it handle events
             if self.help_popup.visible:
@@ -286,7 +368,7 @@ class Simulation:
         #need to add condition for when no longer selecting area
         if self.active_project:
             mars_full_map = pygame.image.load(get_image('mars_full_map.png'))
-            mars_full_map = pygame.transform.scale(mars_full_map, (1240, 690))
+            mars_full_map = pygame.transform.scale(mars_full_map, (self.display.get_width() - 40, self.display.get_height() - 30)) #1240, 690
             self.display.blit(mars_full_map, (40,64))
 
     def get_size(self):
