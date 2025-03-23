@@ -35,6 +35,8 @@ class Simulation:
         # Store previous values for resize calculations
         self.prev_map_width = self.map_width
         self.prev_map_height = self.map_height
+        self.prev_map_x = self.map_x
+        self.prev_map_y = self.map_y
 
         #MENU
         COLOR_MAIN_INACTIVE = (30,33,38)
@@ -134,21 +136,51 @@ class Simulation:
         self.map_x = 40  # Example: Left padding for the map
         self.map_y = 30  # Example: Top padding for the map
         self.map_width = width - 40  # Example: Width excluding side padding
-        self.map_height = width - 30  # Example: Height excluding top/bottom UI
+        self.map_height = height - 30  # Example: Height excluding top/bottom UI
+
+        print("Resizing from w and h: " + str(self.prev_map_width) + " " + str(self.prev_map_height) + " to: " + str(self.map_width) + " " + str(self.map_height))
 
         # **Update the bounding box after resizing**
         if self.active_project and self.active_project.bounding_box:
-            x1, y1, x2, y2 = self.active_project.bounding_box
+            print("Updating bb after resize")
 
-            # Scale bounding box based on map area changes
-            new_x1 = int(x1 * self.map_width / self.prev_map_width) + self.map_x
-            new_y1 = int(y1 * self.map_height / self.prev_map_height) + self.map_y
-            new_x2 = int(x2 * self.map_width / self.prev_map_width) + self.map_x
-            new_y2 = int(y2 * self.map_height / self.prev_map_height) + self.map_y
+            if not self.active_project.relative_bounding_box:
+
+                # Extract x1, y1, x2, y2 from bounding box
+                x1, y1, x2, y2 = self.active_project.bounding_box
+
+                # Store bounding box as relative values
+                print("Storing bounding box relative values")
+                self.active_project.relative_bounding_box = (
+                    (x1 - self.prev_map_x) / self.prev_map_width,
+                    (y1 - self.prev_map_y) / self.prev_map_height,
+                    (x2 - self.prev_map_x) / self.prev_map_width,
+                    (y2 - self.prev_map_y) / self.prev_map_height
+                )
+
+            rx1, ry1, rx2, ry2 = self.active_project.relative_bounding_box
+            print("Relative values")
+            print(self.active_project.relative_bounding_box)
+
+            # Convert back to absolute coordinates
+            new_x1 = int(rx1 * self.map_width) + self.map_x
+            new_y1 = int(ry1 * self.map_height) + self.map_y
+            new_x2 = int(rx2 * self.map_width) + self.map_x
+            new_y2 = int(ry2 * self.map_height) + self.map_y
+
+            # Reset bounding box selection
+            self.drag.start_coord = None
+            self.drag.end_coord = None
+            self.drag.dragging = False
 
             self.active_project.bounding_box = (new_x1, new_y1, new_x2, new_y2)
+            self.drag.start_coord = (new_x1, new_y1)
+            self.drag.end_coord = (new_x2, new_y2)
+
+            print("Resized to:", self.drag.start_coord, self.drag.end_coord)
         
         # Store previous map width & height
+        self.prev_map_x, self.prev_map_y = self.map_x, self.map_y
         self.prev_map_width, self.prev_map_height = self.map_width, self.map_height
 
         if self.fullscreen:
@@ -243,6 +275,9 @@ class Simulation:
         self.error_button.draw(self.display)
         self.view_data_button.draw(self.display)
         self.setting_button.draw(self.display)
+
+        # Draw bounding box selection
+        self.drag.draw()
 
     def run(self, events):
         self.display.fill((30,33,38))
@@ -350,8 +385,6 @@ class Simulation:
         # Draw UI elements
         self.draw_window()
 
-        # Draw bounding box selection
-        self.drag.draw()
 
         # Draw bounding box buttons if selection is made
         if current_project and current_project.selection_made:
