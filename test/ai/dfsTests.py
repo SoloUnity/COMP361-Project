@@ -2,7 +2,6 @@ import unittest
 import sys
 import os
 
-# Adjust paths as needed
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
 
