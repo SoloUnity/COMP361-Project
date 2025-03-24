@@ -119,10 +119,6 @@ class BoundingBox:
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.end_lat_long = coords
-                print("st")
-                print(self.start_lat_long)
-                print("end")
-                print(self.end_lat_long)
                 if self.dragging and not self.simulation.active_project.selection_made:
                     self.dragging = False
                     if self.start_coord and self.end_coord and not self.exceeded:

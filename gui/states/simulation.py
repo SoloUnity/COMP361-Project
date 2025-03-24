@@ -211,8 +211,6 @@ class Simulation:
         SIMULATION_WINDOW_H = self.display.get_height() - 63
         new_project.map_view = MapView(self.display, SIMULATION_WINDOW_X, SIMULATION_WINDOW_Y, SIMULATION_WINDOW_W, SIMULATION_WINDOW_H)
 
-        # Reset bounding box selection
-        # self.drag.update_rect(40, 63, self.display.get_width() - 40, self.display.get_height() - 30)
         print("Switched to project " + str(tab_id) + "by adding new tab")
 
         # Reset bounding box selection
@@ -423,9 +421,6 @@ class Simulation:
         # Mars Full Map
         #need to add condition for when no longer selecting area
         if self.active_project:
-            # mars_full_map = pygame.image.load(get_image('mars_full_map.png'))
-            # mars_full_map = pygame.transform.scale(mars_full_map, (self.display.get_width() - 40, self.display.get_height() - 30)) #1240, 690
-            # self.display.blit(mars_full_map, (40,64))
             coords = self.active_project.map_view.draw()
             self.drag.draw(coords)
 

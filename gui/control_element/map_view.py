@@ -49,9 +49,7 @@ class MapView:
         new_offset_x = self.offset_x + dx
 
         if self.display_w - new_offset_x > self.img_width:
-            print(True)
             self.offset_x = -(self.img_width - self.display_w)
-            print(new_offset_x)
         elif new_offset_x > 0:
             self.offset_x = 0
         else:
@@ -76,66 +74,6 @@ class MapView:
         self.display.blit(text_surface, (self.display.get_width() - text_surface.get_width(), self.display.get_height() - text_surface.get_height()))
 
         return (float('%.3f'%lat), float('%.3f'%lon))
-    
-    # def update(self, top_left, bot_right):
-    #     if bot_right is None:
-    #         self.offset_x, self.offset_y = 0, 0
-    #         self.img_width, self.img_height = 1440, 720
-    #         self.draw_start_screen()
-    #         return
-        
-
-    #     w, h = abs(bot_right[0] - top_left[0]), abs(bot_right[1] - top_left[1])
-    #     center = (top_left[0] + w / 2, top_left[1] + h / 2)
-            
-    #     self.img_width, self.img_height = 8536, 4268
-    #     self.offset_x = (-(center[0]) / self.display_w * self.img_width) + self.display_w / 2 + self.display_offset_x
-    #     self.offset_y = (-(center[1]) / self.display_h * self.img_height) + self.display_h / 2 + self.display_offset_y
-
-    #     self.draw_start_screen()
-
-    # def update(self, top_left, bot_right):
-
-    #     print(top_left)
-    #     print(bot_right)
-        
-    #     if bot_right is None:
-    #         # Reset to default view using an initial scale that fits the full image into the display area
-    #         # initial_scale = min(self.display_w / 8536, self.display_h / 4268)
-    #         self.offset_x, self.offset_y = 0, 0
-    #         # self.img_width, self.img_height = 1440, 720
-    #         self.draw_start_screen()
-    #         return
-
-    #     # Compute the current scale factor (from original image to what's currently drawn)
-    #     current_scale = self.img_width / 8536
-
-    #     # Convert the bounding box coordinates (which are in MapView display space) back to original image coordinates
-    #     top_left_orig = (top_left[0] / current_scale, top_left[1] / current_scale)
-    #     bot_right_orig = (bot_right[0] / current_scale, bot_right[1] / current_scale)
-
-    #     # Calculate the size of the bounding box in original image coordinates
-    #     bbox_width_orig = abs(bot_right_orig[0] - top_left_orig[0])
-    #     bbox_height_orig = abs(bot_right_orig[1] - top_left_orig[1])
-
-    #     # Compute new scale so that the bounding box fills the MapView display area
-    #     scale_x = self.display_w / bbox_width_orig
-    #     scale_y = self.display_h / bbox_height_orig
-    #     new_scale = min(scale_x, scale_y)
-
-    #     # Update the full image dimensions using the new scale
-    #     self.img_width = 8536 * new_scale
-    #     self.img_height = 4268 * new_scale
-
-    #     # Set the offsets so that the top-left of the bounding box aligns with the MapView's top-left corner
-    #     self.offset_x = -top_left_orig[0] * new_scale + self.display_offset_x
-    #     self.offset_y = -top_left_orig[1] * new_scale + self.display_offset_y
-
-    #     print(new_scale)
-    #     print(self.offset_x)
-    #     print(self.offset_y)
-
-    #     self.draw_start_screen()
 
 
     def update(self, start_lat_long, end_lat_long):
@@ -158,8 +96,6 @@ class MapView:
         top_left_x, top_left_y = latlon_to_pixels(start_lat, start_lon, 8536, 4268)
         bot_right_x, bot_right_y = latlon_to_pixels(end_lat, end_lon, 8536, 4268)
 
-        print(top_left_x, top_left_y, bot_right_x, bot_right_y)
-
         # Calculate the size of the bounding box
         bbox_width_orig = abs(bot_right_x - top_left_x)
         bbox_height_orig = abs(bot_right_y - top_left_y)
@@ -176,8 +112,6 @@ class MapView:
         # Set the offsets so that the top-left of the bounding box aligns with the MapView's top-left corner
         self.offset_x = -top_left_x * new_scale + self.offset_x
         self.offset_y = -top_left_y * new_scale + self.offset_y
-
-        print(f"Scale: {new_scale}, Offset: ({self.offset_x}, {self.offset_y})")
 
         self.draw_start_screen()
 
