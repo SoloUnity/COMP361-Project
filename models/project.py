@@ -14,6 +14,7 @@ class Project:
         self.selecting_box = False
         self.start_pos = None
         self.selection_made = False # When the bounding box has been determined but not confirmed
+        self.relative_bounding_box = None 
 
     def start_selection(self, start_pos):
             self.selecting_box = True

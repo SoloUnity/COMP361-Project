@@ -47,6 +47,10 @@ class DropDown():
                 text_rect.centery = rect.centery  
 
                 display.blit(option_text, text_rect.topleft)  
+                
+    def set_position(self, x, y):
+        self.rect.topleft = (x, y)
+        self.menu_box_rect.topleft = (x, y + self.rect.height)
 
     def update(self, events):
         mpos = pygame.mouse.get_pos()

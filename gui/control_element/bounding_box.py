@@ -18,7 +18,7 @@ class BoundingBox:
         mpos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mpos):
             return (mpos[0] - self.rect.x, mpos[1] - self.rect.y)
-        return None
+        return None # Ignore coordinates if outside
 
     def enforce_ratio(self, width, height):
         if width == 0:
@@ -66,13 +66,16 @@ class BoundingBox:
 
             elif event.type == pygame.MOUSEMOTION and self.dragging:
                 if self.active and not self.simulation.active_project.selection_made:
+                    self.end_coord = self.get_coordinates()
                     new_end = self.get_coordinates()
                     if new_end:
-                        new_width = abs(new_end[0] - self.start_coord[0])
-                        new_height = abs(new_end[1] - self.start_coord[1])
+                        new_x = max(0, min(new_end[0], self.rect.width))   # Clamp x within bounds
+                        new_y = max(0, min(new_end[1], self.rect.height))  # Clamp y within bounds
+                        new_width = abs(new_x - self.start_coord[0])
+                        new_height = abs(new_y - self.start_coord[1])
                         new_width, new_height = self.enforce_ratio(new_width, new_height)
+                        
                         new_area = new_width * new_height
-
                         if new_area <= self.max_area:
                             self.end_coord = (self.start_coord[0] + new_width, self.start_coord[1] + new_height)
                             self.exceeded = False
@@ -85,10 +88,10 @@ class BoundingBox:
                     if self.start_coord and self.end_coord and not self.exceeded:
                         if self.simulation.active_project:
                             self.simulation.active_project.bounding_box = (
-                                min(self.start_coord[0], self.end_coord[0]), 
-                                min(self.start_coord[1], self.end_coord[1]), 
-                                max(self.start_coord[0], self.end_coord[0]), 
-                                max(self.start_coord[1], self.end_coord[1])
+                                max(0, min(self.start_coord[0], self.rect.width)), 
+                                max(0, min(self.start_coord[1], self.rect.height)), 
+                                max(0, min(self.end_coord[0], self.rect.width)), 
+                                max(0, min(self.end_coord[1], self.rect.height))
                             )
                             self.simulation.active_project.selection_made = True  # Mark as finalized
                             print(f"Finalized bounding box: {self.simulation.active_project.bounding_box}")
