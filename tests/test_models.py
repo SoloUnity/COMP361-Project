@@ -13,6 +13,23 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from models.rover import create_rover, get_rover_by_id, delete_rover
 from models.project import create_project, get_project_by_id, delete_project
 from models.trajectory import create_trajectory, get_trajectory_by_id, delete_trajectory
+from models.hazard_area import create_hazard_area, get_hazard_areas_by_project, delete_hazard_area
+from database.db import get_connection
+
+def initialize_database():
+    """Initialize the database with required schema."""
+    print_info("Initializing database schema...")
+    
+    schema_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'database', 'schema.sql')
+    with open(schema_path, 'r') as schema_file:
+        schema_sql = schema_file.read()
+    
+    conn = get_connection()
+    conn.executescript(schema_sql)
+    conn.commit()
+    conn.close()
+    
+    print_success("Database schema initialized successfully")
 
 class Colors:
     """ANSI color codes for pretty output"""
@@ -56,12 +73,28 @@ def test_rover():
     print_success(f"Created rover: {rover.name} (ID: {rover.rover_id})")
 
     print_object(rover, "Rover")
+    
+    print_info("Verifying energy consumption values...")
+    if hasattr(rover, 'lowSlopeEnergy') and hasattr(rover, 'midSlopeEnergy') and hasattr(rover, 'highSlopeEnergy'):
+        print_success(f"Energy consumption fields found: Low: {rover.lowSlopeEnergy}, Mid: {rover.midSlopeEnergy}, High: {rover.highSlopeEnergy}")
+    else:
+        print_error("Energy consumption fields not found in rover object!")
+        return False
+    
     print_info(f"Retrieving rover with ID: {rover.rover_id}...")
     retrieved_rover = get_rover_by_id(rover.rover_id)
 
     if retrieved_rover and retrieved_rover.rover_id == rover.rover_id:
         print_success(f"Successfully retrieved rover: {retrieved_rover.name}")
         print_object(retrieved_rover, "Retrieved Rover")
+        
+        if (retrieved_rover.lowSlopeEnergy == rover.lowSlopeEnergy and
+            retrieved_rover.midSlopeEnergy == rover.midSlopeEnergy and
+            retrieved_rover.highSlopeEnergy == rover.highSlopeEnergy):
+            print_success("Energy consumption values correctly retrieved from database")
+        else:
+            print_error("Energy consumption values do not match original values!")
+            return False
     else:
         print_error("Failed to retrieve rover!")
         return False
@@ -171,15 +204,66 @@ def test_trajectory():
     
     return True
 
+def test_hazard_area():
+    print_header("⚠️ Testing Hazard Area CRUD Operations")
+    
+    project = create_project()
+    
+    print_info("Creating new hazard area...")
+    hazard_area = create_hazard_area(
+        name="Steep Cliff",
+        description="Dangerous cliff area with loose rocks",
+        x1=10.5, y1=20.3,
+        x2=10.5, y2=25.7,
+        x3=15.8, y3=25.7,
+        x4=15.8, y4=20.3,
+        project_id=project.project_id
+    )
+    
+    print_success(f"Created hazard area with ID: {hazard_area.hazard_id}")
+    print_object(hazard_area, "Hazard Area")
+
+    print_info(f"Retrieving hazard areas for project: {project.project_id}...")
+    retrieved_hazards = get_hazard_areas_by_project(project.project_id)
+    
+    if retrieved_hazards and len(retrieved_hazards) > 0:
+        retrieved_hazard = retrieved_hazards[0]
+        
+        if retrieved_hazard.hazard_id == hazard_area.hazard_id:
+            print_success(f"Successfully retrieved hazard area with ID: {retrieved_hazard.hazard_id}")
+            print_object(retrieved_hazard, "Retrieved Hazard Area")
+        else:
+            print_error("Retrieved hazard area doesn't match the created one!")
+            delete_project(project.project_id)
+            return False
+    else:
+        print_error("Failed to retrieve any hazard areas!")
+        delete_project(project.project_id)
+        return False
+    
+    print_info(f"Deleting hazard area with ID: {hazard_area.hazard_id}...")
+    if delete_hazard_area(hazard_area.hazard_id):
+        print_success(f"Successfully deleted hazard area")
+    else:
+        print_error("Failed to delete hazard area!")
+        delete_project(project.project_id)
+        return False
+    
+    delete_project(project.project_id)
+    return True
+
 def run_all_tests():
     print_header("🚀 Starting SpaceY Database Model Tests")
     
     start_time = time.time()
     
+    initialize_database()
+    
     tests = [
         ("Rover", test_rover),
         ("Project", test_project),
-        ("Trajectory", test_trajectory)
+        ("Trajectory", test_trajectory),
+        ("Hazard Area", test_hazard_area)
     ]
     
     results = []
