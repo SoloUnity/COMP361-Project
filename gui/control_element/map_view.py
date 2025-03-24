@@ -55,23 +55,6 @@ class MapView:
 
         return (float('%.3f'%lat), float('%.3f'%lon))
     
-    # def update(self, top_left, bot_right):
-    #     if bot_right is None:
-    #         self.offset_x, self.offset_y = 0, 0
-    #         self.img_width, self.img_height = 1440, 720
-    #         self.draw_start_screen()
-    #         return
-        
-
-    #     w, h = abs(bot_right[0] - top_left[0]), abs(bot_right[1] - top_left[1])
-    #     center = (top_left[0] + w / 2, top_left[1] + h / 2)
-            
-    #     self.img_width, self.img_height = 8536, 4268
-    #     self.offset_x = (-(center[0]) / self.display_w * self.img_width) + self.display_w / 2 + self.display_offset_x
-    #     self.offset_y = (-(center[1]) / self.display_h * self.img_height) + self.display_h / 2 + self.display_offset_y
-
-    #     self.draw_start_screen()
-
     def update(self, top_left, bot_right):
         if bot_right is None:
             # Reset to default view using an initial scale that fits the full image into the display area
