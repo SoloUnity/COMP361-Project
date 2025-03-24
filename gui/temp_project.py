@@ -18,6 +18,8 @@ class Project:
         self.selection_made = False # When the bounding box has been determined but not confirmed
         self.relative_bounding_box = None
 
+        self.map_view = None
+        
     def save():
         #if project exist in db, update
         #else create new project

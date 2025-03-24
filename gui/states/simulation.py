@@ -97,11 +97,6 @@ class Simulation:
 
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
 
-        SIMULATION_WINDOW_X = 40
-        SIMULATION_WINDOW_Y = 63
-        SIMULATION_WINDOW_W = self.display.get_width() - 40
-        SIMULATION_WINDOW_H = self.display.get_height() - 63
-        self.map_view = MapView(display, SIMULATION_WINDOW_X, SIMULATION_WINDOW_Y, SIMULATION_WINDOW_W, SIMULATION_WINDOW_H)
         
         self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30, 10000)
         self.confirm_bb = Button("Confirm", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
@@ -209,6 +204,12 @@ class Simulation:
         self.projects.append(new_project)
         self.tab_manager.add_tab(tab_id, position, new_project)
         self.active_project = new_project  # Update active project reference
+
+        SIMULATION_WINDOW_X = 40
+        SIMULATION_WINDOW_Y = 63
+        SIMULATION_WINDOW_W = self.display.get_width() - 40
+        SIMULATION_WINDOW_H = self.display.get_height() - 63
+        new_project.map_view = MapView(self.display, SIMULATION_WINDOW_X, SIMULATION_WINDOW_Y, SIMULATION_WINDOW_W, SIMULATION_WINDOW_H)
 
         # Reset bounding box selection
         # self.drag.update_rect(40, 63, self.display.get_width() - 40, self.display.get_height() - 30)
@@ -355,10 +356,10 @@ class Simulation:
                 if not self.drag.dragging:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_LEFT:
-                            self.map_view.handle_scroll(100) # Scroll left
+                            current_project.map_view.handle_scroll(100) # Scroll left
                         if event.key == pygame.K_RIGHT:
-                            self.map_view.handle_scroll(-100)  # Scroll right
-                coords = self.map_view.draw()
+                            current_project.map_view.handle_scroll(-100)  # Scroll right
+                coords = current_project.map_view.draw()
                 self.drag.update(events, coords)
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # Prevent new selection if finalized
@@ -394,7 +395,7 @@ class Simulation:
 
             offset = (40, 62)
             top_left, bot_right = self.drag.get_bounds()
-            self.map_view.update(top_left, bot_right)
+            self.active_project.map_view.update(top_left, bot_right)
             self.drag.reset()
 
         elif self.reset_bb.is_clicked and current_project.selection_made:
@@ -425,7 +426,7 @@ class Simulation:
             # mars_full_map = pygame.image.load(get_image('mars_full_map.png'))
             # mars_full_map = pygame.transform.scale(mars_full_map, (self.display.get_width() - 40, self.display.get_height() - 30)) #1240, 690
             # self.display.blit(mars_full_map, (40,64))
-            coords = self.map_view.draw()
+            coords = self.active_project.map_view.draw()
             self.drag.draw(coords)
 
     def get_size(self):
