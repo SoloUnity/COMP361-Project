@@ -5,9 +5,11 @@ from gui.control_element.drop_down import DropDown
 from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
 from gui.control_element.bounding_box import BoundingBox
+from gui.control_element.map_view import MapView
 from utils.paths import REGULAR, get_image, get_text_file
 from gui.states.tab_manager import TabManager
-from models.project import Project
+from gui.temp_project import Project
+# from models.project import Project
 #support resize
 
 #constants for UI
@@ -71,6 +73,7 @@ class Simulation:
 
         self.help_button = Button("Help", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 180, MENU_Y, 45, MENU_H)
         self.show_help_popup = False
+
         # Popup instance
         self.help_popup = PopupWindow(self.display, width=740, height=488, title="Documentation")
 
@@ -93,6 +96,12 @@ class Simulation:
         self.view_data_button = Button("View", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 75, ICON_W, S_ICON_H, VISIBILITY_ICON, 0.8)
 
         self.setting_button = Button("Setting", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, S_ICON_X, display.get_height() - 40, ICON_W, S_ICON_H, SETTING_ICON, 0.8)
+
+        SIMULATION_WINDOW_X = 40
+        SIMULATION_WINDOW_Y = 63
+        SIMULATION_WINDOW_W = self.display.get_width() - 40
+        SIMULATION_WINDOW_H = self.display.get_height() - 63
+        self.map_view = MapView(display, SIMULATION_WINDOW_X, SIMULATION_WINDOW_Y, SIMULATION_WINDOW_W, SIMULATION_WINDOW_H)
         
         self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30, 10000)
         self.confirm_bb = Button("Confirm", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
@@ -277,7 +286,7 @@ class Simulation:
         self.setting_button.draw(self.display)
 
         # Draw bounding box selection
-        self.drag.draw()
+        # self.drag.draw()
 
     def run(self, events):
         self.display.fill((30,33,38))
@@ -301,6 +310,7 @@ class Simulation:
         self.setting_button.update(events)
         self.error_button.update(events)
         self.view_data_button.update(events) 
+        # self.map_view.update()
 
         # Handle Window Control
         if self.close_window_button.is_clicked:
@@ -342,19 +352,26 @@ class Simulation:
 
             if current_project and not current_project.bounding_box_selected:
                 # print("Dragging mouse for bounding box is active")
-                self.drag.update(events)
+                if not self.drag.dragging:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            self.map_view.handle_scroll(100) # Scroll left
+                        if event.key == pygame.K_RIGHT:
+                            self.map_view.handle_scroll(-100)  # Scroll right
+                coords = self.map_view.draw()
+                self.drag.update(events, coords)
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # Prevent new selection if finalized
                     # Ensure click is within the bounding box area
                     if self.drag.active and not current_project.selection_made:  
-                        coords = self.drag.get_coordinates()
+                        coords = self.drag.get_bounds()
                         if coords is not None:  # Prevent accidental None assignments
                             current_project.start_selection(coords)
 
                 elif event.type == pygame.MOUSEMOTION and current_project.selecting_box:
                     # Prevent modification if finalized
                     if not current_project.selection_made:
-                        coords = self.drag.get_coordinates()
+                        coords = self.drag.get_bounds()
                         if coords is not None and coords != current_project.bounding_box:
                             current_project.update_selection(coords)
 
@@ -374,6 +391,11 @@ class Simulation:
             current_project.finalize_selection()
             print(f"Bounding box set: {current_project.project_id, current_project.bounding_box}")
             current_project.selection_made = False
+
+            offset = (40, 62)
+            top_left, bot_right = self.drag.get_bounds()
+            self.map_view.update(top_left, bot_right)
+            self.drag.reset()
 
         elif self.reset_bb.is_clicked and current_project.selection_made:
             self.active_project.selection_made = False
@@ -400,9 +422,11 @@ class Simulation:
         # Mars Full Map
         #need to add condition for when no longer selecting area
         if self.active_project:
-            mars_full_map = pygame.image.load(get_image('mars_full_map.png'))
-            mars_full_map = pygame.transform.scale(mars_full_map, (self.display.get_width() - 40, self.display.get_height() - 30)) #1240, 690
-            self.display.blit(mars_full_map, (40,64))
+            # mars_full_map = pygame.image.load(get_image('mars_full_map.png'))
+            # mars_full_map = pygame.transform.scale(mars_full_map, (self.display.get_width() - 40, self.display.get_height() - 30)) #1240, 690
+            # self.display.blit(mars_full_map, (40,64))
+            coords = self.map_view.draw()
+            self.drag.draw(coords)
 
     def get_size(self):
         return self.width, self.height
