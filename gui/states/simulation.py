@@ -4,7 +4,7 @@ import pygame._sdl2
 from gui.control_element.drop_down import DropDown
 from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
-from gui.control_element.bounding_box import BoundingBox
+from gui.control_element.bounding_box2 import BoundingBox
 from gui.control_element.map_view import MapView
 from utils.paths import REGULAR, get_image, get_text_file
 #support resize
