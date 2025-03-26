@@ -87,3 +87,6 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[2].y, 1)
         self.assertEqual(path[3].y, 2)
         self.assertEqual(path[4].y, 3)
+
+if __name__ == '__main__':
+    unittest.main()
