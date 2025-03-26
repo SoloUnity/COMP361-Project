@@ -6,7 +6,8 @@ from database.db import get_connection
 class Rover:
     def __init__(self, rover_id=None, name='', weight=0.0, yearLaunched=None, status='Healthy', 
                  manufacturer='', top_speed=0.0, wheel_count=0, max_incline=0.0, last_trajectory=None, 
-                 sprite_file_path='', total_distance_traveled=0.0, power_source='', description=''):
+                 sprite_file_path='', total_distance_traveled=0.0, power_source='', description='',
+                 lowSlopeEnergy=0.0, midSlopeEnergy=0.0, highSlopeEnergy=0.0):
         self.rover_id = rover_id or str(uuid.uuid4())
         self.name = name
         self.weight = weight
@@ -21,6 +22,9 @@ class Rover:
         self.total_distance_traveled = total_distance_traveled
         self.power_source = power_source
         self.description = description
+        self.lowSlopeEnergy = lowSlopeEnergy
+        self.midSlopeEnergy = midSlopeEnergy
+        self.highSlopeEnergy = highSlopeEnergy
 
 def get_rover_by_id(rover_id):
     conn = get_connection()
@@ -44,7 +48,10 @@ def get_rover_by_id(rover_id):
             sprite_file_path=row["spriteFilePath"],
             total_distance_traveled=row["totalDistanceTraveled"],
             power_source=row["powerSource"],
-            description=row["description"]
+            description=row["description"],
+            lowSlopeEnergy=row["lowSlopeEnergy"],
+            midSlopeEnergy=row["midSlopeEnergy"],
+            highSlopeEnergy=row["highSlopeEnergy"]
         )
     return None
 
@@ -69,14 +76,16 @@ def create_rover(rover_type):
     query = """INSERT INTO Rover 
                (RoverID, Name, Weight, yearLaunched, Status, Manufacturer, topSpeed, 
                 wheelCount, maxIncline, lastTrajectory, spriteFilePath, 
-                totalDistanceTraveled, powerSource, description) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                totalDistanceTraveled, powerSource, description,
+                lowSlopeEnergy, midSlopeEnergy, highSlopeEnergy) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
     cursor.execute(query, (
         rover.rover_id, rover.name, rover.weight, rover.yearLaunched,
         rover.status, rover.manufacturer, rover.top_speed,
         rover.wheel_count, rover.max_incline, rover.last_trajectory,
         rover.sprite_file_path, rover.total_distance_traveled, 
-        rover.power_source, rover.description
+        rover.power_source, rover.description,
+        rover.lowSlopeEnergy, rover.midSlopeEnergy, rover.highSlopeEnergy
     ))
     conn.commit()
     conn.close()

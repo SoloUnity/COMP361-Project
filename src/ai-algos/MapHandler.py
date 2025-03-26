@@ -7,8 +7,7 @@ class MapHandler:
         self.height = len(mapData[0])
     
     def getAltitude(self, x, y):
-        # Altitude is now stored at index 1 of the cell.
-        return self.map[x][y][1]
+        return self.map[x][y][2]
     
     # check if in bounds
     def isValidLocation(self, x, y):
@@ -30,6 +29,5 @@ class MapHandler:
     
     def getLocationAt(self, x: int, y: int):
         cell = self.map[x][y]
-        lon, lat = cell[0]
-        altitude = cell[1]
+        _, (lat, lon), altitude = cell
         return Location(x, y, lon, lat, altitude)

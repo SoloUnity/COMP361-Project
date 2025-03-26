@@ -3,15 +3,7 @@ import math
 
 from Location import Location
 from Pathfinder import PathFinder
-
-class Node:
-    def __init__(self, coord: (int, int), parent):
-        self.coord = coord
-        self.parent = parent
-
-    # for unit tests
-    def __lt__(self, other):
-        return self.coord < other.coord
+from Node import Node
 
 class AStar(PathFinder):
 

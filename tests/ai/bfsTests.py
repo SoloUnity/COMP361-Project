@@ -1,6 +1,10 @@
 import unittest
 import sys
-sys.path.append('../../src/ai-algos')
+import os
+
+projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
+
 from MapHandler import MapHandler
 from BFS import BFS
 from Location import Location
@@ -83,3 +87,6 @@ class bfsTests(unittest.TestCase):
         self.assertEqual(path[2].y, 1)
         self.assertEqual(path[3].y, 2)
         self.assertEqual(path[4].y, 3)
+
+if __name__ == '__main__':
+    unittest.main()
