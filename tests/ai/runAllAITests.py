@@ -12,11 +12,12 @@ from dfsTests import DFSAlgorithmTests
 
 def runAllTests():
     testSuite = unittest.TestSuite()
-    
-    testSuite.addTest(unittest.makeSuite(heuristicsTests))
-    testSuite.addTest(unittest.makeSuite(bfsTests))
-    testSuite.addTest(unittest.makeSuite(TestAStarAlgorithm))
-    testSuite.addTest(unittest.makeSuite(DFSAlgorithmTests))
+    loader = unittest.TestLoader()
+
+    testSuite.addTest(loader.loadTestsFromTestCase(heuristicsTests))
+    testSuite.addTest(loader.loadTestsFromTestCase(bfsTests))
+    testSuite.addTest(loader.loadTestsFromTestCase(TestAStarAlgorithm))
+    testSuite.addTest(loader.loadTestsFromTestCase(DFSAlgorithmTests))
     
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(testSuite)
@@ -26,7 +27,6 @@ def runAllTests():
     print(f"Ran {result.testsRun} tests")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
-    print(f"Skipped: {len(result.skipped)}")
     
     return len(result.failures) == 0 and len(result.errors) == 0
 

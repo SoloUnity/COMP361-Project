@@ -1,6 +1,9 @@
 import sys
-sys.path.append('../../src/ai-algos')
-sys.path.append('../../src/util')
+import os
+
+projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
+sys.path.append(os.path.join(projectRoot, 'src/util'))
 
 from MapHandler import MapHandler
 from Rover import Rover
@@ -21,6 +24,28 @@ def bfsOnMap() :
     path = bfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
     printPath(path)
 
+def dfsOnMap() :
+    matrix, new_transform = dem_to_matrix("./../../../Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif", (5000, 4030), 100, 100)
+    mH = MapHandler(matrix)
+    fromLoc = mH.getLocationAt(10, 10)
+    toLoc1 = mH.getLocationAt(10, 15)
+    toLoc2 = mH.getLocationAt(12, 9)
+    rover = Rover(8) # with 10 a different path
+    dfs = DFS()
+    path = dfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
+    printPath(path)
+
+def aStarOnMap() :
+    matrix, new_transform = dem_to_matrix("./../../../Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif", (5000, 4030), 100, 100)
+    mH = MapHandler(matrix)
+    fromLoc = mH.getLocationAt(10, 10)
+    toLoc1 = mH.getLocationAt(10, 15)
+    toLoc2 = mH.getLocationAt(12, 9)
+    rover = Rover(8) # with 10 a different path
+    aStar = AStar()
+    path = aStar.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
+    printPath(path)
+
 def heuristicsOnMap() :
     matrix, new_transform = dem_to_matrix("./../../../Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif", (5000, 4030), 100, 100)
     mH = MapHandler(matrix)
@@ -38,5 +63,5 @@ def printPath(path) :
         loc.printLoc()
 
 if __name__ == "__main__":
-    #bfsOnMap()
-    heuristicsOnMap()
+    bfsOnMap()
+    # heuristicsOnMap()
