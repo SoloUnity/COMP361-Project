@@ -1,5 +1,7 @@
-from math import sqrt, sin, asin
-import math
+#Author : Mathilde Peruzzo
+
+from math import sqrt, sin, asin, tan, fsum
+from MapHandler import MapHandler
 
 def euclidean_distance(loc1, loc2) :
     """
@@ -30,16 +32,22 @@ def geographical_distance(loc1, loc2) :
 def altitude_difference(loc1, loc2) :
     return loc2.altitude - loc1.altitude
 
-def north_south_slope(loc, mapHandler) :
+def has_sunlight_obstacle(loc, mapHandler) :
     """
-    Computes the slope on the north-south axis for the provided location
+    Returns 0 if the location is exposed to the sun at midday, 1 otherwise
+    Neglects the axial tilt of the planet and approximates the ground as a flat surface
+    Only considers potential obstacles one kilometer away
     """
-    newY = loc.y
-    if (loc.lat > 0 and mapHandler.isValidLocation(loc.x, loc.y-1)) :
-        newY -= 1
-    elif (loc.lat < 0 and mapHandler.isValidLocation(loc.x, loc.y+1)) :
-        newY += 1
-    return (mapHandler.getAltitude(loc.x, loc.y) - mapHandler.getAltitude(loc.x, newY)) / 10
+    sign = 1 if loc.lat > 0 else -1
+    tanlat = sign * tan(loc.lat)
+    # checks the the north-south direction towards the equator
+    for i in range(1, 100) :
+        loc1 = mapHandler.getLocationAt(loc.x, loc.y + sign * i)
+        if sign != (1 if loc1.lat > 0 else -1) : return 0 # no obstacle if cross the equator
+
+        alt_diff = altitude_difference(loc, loc1)
+        if alt_diff != 0 and (10 * i)/alt_diff > tanlat : return 1
+    return 0
 
 def distance_h(path, loc, toLoc, rover, mapHandler) :
     """
@@ -75,26 +83,12 @@ def avg_altitude_h(path, loc, toLoc, rover, mapHandler) :
     Favors paths that with low altitudes
     """
     altitudes = map(lambda l : l.altitude, path)
-    soFar = (math.fsum(altitudes) + loc.altitude + toLoc.altitude) / (len(path) + 2)
+    soFar = (fsum(altitudes) + loc.altitude + toLoc.altitude) / (len(path) + 2)
     toGo = (loc.altitude + toLoc.altitude) / 2
     return (soFar + toGo)/2
 
 def solar_exposure_h(path, loc, toLoc, rover, mapHandler) :
-    exposures = map(lambda l : north_south_slope(l, mapHandler))
-    soFar = (math.fsum(exposures) + north_south_slope(loc) + north_south_slope(toLoc)) / (len(path) + 2) 
+    exposures = map(lambda l : has_sunlight_obstacle(l, mapHandler), path)
+    soFar = fsum(exposures) + has_sunlight_obstacle(loc, mapHandler)
     return soFar
 
-def heuristic(path, loc, toLoc, rover, mapHandler) :
-    """
-    TODO : parameterize the coefficients
-    path : list[Location]
-    loc : Location
-        location being evaluated by the heuristic
-    toLoc : Location
-        destination to reach
-    rover : Rover
-    mapHandler : MapHandler
-    """
-    return 2 * distance_h(path, loc, toLoc, rover, mapHandler) \
-        + stable_altitude_h(path, loc, t, rover, mapHandler) \
-        + avg_altitude_h(path, loc, toLoc, rover, mapHandler)
