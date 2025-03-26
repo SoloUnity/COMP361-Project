@@ -16,7 +16,7 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.roverHigh = Rover(30)
         self.roverLow = Rover(0)
 
-    def testDFSGoToSimpleHorizontal(self):
+    def testGoToHorizontal(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0]]
@@ -25,14 +25,14 @@ class DFSAlgorithmTests(unittest.TestCase):
         dfs = DFS()
         fromLoc = Location(0, 0, 0, 0, 0)
         toLoc = Location(0, 1, 1, 1, 0)
-        rover = Rover(30)
-        path = dfs.goTo(fromLoc, toLoc, rover, mapHandler)
+
+        path = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
 
         self.assertEqual(len(path), 2)
         self.assertEqual(path[0].y, 0)
         self.assertEqual(path[1].y, 1)
-    
-    def testDFSGoToSimpleMultipleHorizontalSteps(self):
+
+    def testGoToVertical(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0],
@@ -43,15 +43,31 @@ class DFSAlgorithmTests(unittest.TestCase):
         dfs = DFS()
         fromLoc = Location(0, 1, 1, 1, 0)
         toLoc   = Location(0, 3, 3, 3, 0)
-        rover = Rover(30)
-        path = dfs.goTo(fromLoc, toLoc, rover, mapHandler)
+        
+        pathLow  = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        
+        self.assertEqual(len(pathLow), 3)
+    
+    def testGoToSimpleMultipleHorizontalSteps(self):
+        mapData = [
+            [[(0, 0), (0, 0), 0],
+            [(0, 1), (1, 1), 0],
+            [(0, 2), (2, 2), 0],
+            [(0, 3), (3, 3), 0]]
+        ]
+        mapHandler = MapHandler(mapData)
+        dfs = DFS()
+        fromLoc = Location(0, 1, 1, 1, 0)
+        toLoc   = Location(0, 3, 3, 3, 0)
+
+        path = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
 
         self.assertEqual(len(path), 3)
         self.assertEqual(path[0].y, 1)
         self.assertEqual(path[1].y, 2)
         self.assertEqual(path[2].y, 3)
         
-    def testDFSVisitAllSingleTarget(self):
+    def testVisitAllSingleTarget(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0]]
@@ -60,14 +76,14 @@ class DFSAlgorithmTests(unittest.TestCase):
         dfs = DFS()
         fromLoc = Location(0, 0, 0, 0, 0)
         targetLoc = Location(0, 1, 1, 1, 0)
-        rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [targetLoc], rover, mapHandler)
+
+        path = dfs.visitAll(fromLoc, [targetLoc], self.roverLow, mapHandler)
 
         self.assertEqual(len(path), 2)
         self.assertEqual(path[0].y, 0)
         self.assertEqual(path[1].y, 1)
         
-    def testDFSVisitAllSingleTargetMultipleSteps(self):
+    def testVisitAllSingleTargetMultipleSteps(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0],
@@ -78,8 +94,8 @@ class DFSAlgorithmTests(unittest.TestCase):
         dfs = DFS()
         fromLoc = Location(0, 1, 1, 1, 0)
         targetLoc = Location(0, 3, 3, 3, 0)
-        rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [targetLoc], rover, mapHandler)
+
+        path = dfs.visitAll(fromLoc, [targetLoc], self.roverLow, mapHandler)
 
         self.assertEqual(len(path), 3)
         self.assertEqual(path[0].y, 1)
@@ -98,8 +114,8 @@ class DFSAlgorithmTests(unittest.TestCase):
         fromLoc = Location(0, 1, 1, 1, 0)
         targetLoc1 = Location(0, 3, 3, 3, 0)
         targetLoc2 = Location(0, 0, 0, 0, 0)
-        rover = Rover(30)
-        path = dfs.visitAll(fromLoc, [targetLoc2, targetLoc1], rover, mapHandler)
+
+        path = dfs.visitAll(fromLoc, [targetLoc2, targetLoc1], self.roverLow, mapHandler)
 
         self.assertEqual(len(path), 5)
         self.assertEqual(path[0].y, 1)
@@ -118,8 +134,8 @@ class DFSAlgorithmTests(unittest.TestCase):
         dfs = DFS()
         fromLoc = Location(0, 0, 0, 0, 0)
         toLoc   = Location(2, 2, 8, 8, 0)
-        rover = Rover(30)
-        path = dfs.goTo(fromLoc, toLoc, rover, mapHandler)
+
+        path = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
 
         self.assertGreater(len(path), 0)
         self.assertEqual(path[0].x, 0)
@@ -127,6 +143,27 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.assertEqual(path[-1].x, 2)
         self.assertEqual(path[-1].y, 2)
     
+    def testAStarNoPath(self):
+        mapData = [
+            [
+                [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0]
+            ],
+            [
+                [(1, 0), (2, 2), 0], [(1, 1), (3, 3), 999]
+            ]
+        ]
+        mapHandler = MapHandler(mapData)
+        
+        fromLoc = Location(0, 0, 0, 0, 0)
+        toLoc   = Location(1, 1, 3, 3, 999)  # huge obstacle
+        
+        dfs = DFS()
+        pathHigh = dfs.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        pathLow  = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+
+        self.assertEqual(len(pathHigh), 0)
+        self.assertEqual(len(pathLow), 0)
+
     def testAltitudeChangePrioritization(self):
         # 26.6 degrees slope test
         # altitude = 5 and distance = 10 meters
