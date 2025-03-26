@@ -11,6 +11,8 @@ class Project:
         self.created_on = created_on or datetime.now()
         self.last_saved_on = last_saved_on or self.created_on
 
+        self.tab_id = None
+
         self.bounding_box_selected = False
         self.bounding_box = None  # Stores (x1, y1, x2, y2)
         self.selecting_box = False
@@ -18,8 +20,10 @@ class Project:
         self.selection_made = False # When the bounding box has been determined but not confirmed
         self.relative_bounding_box = None
 
+        self.rovers = None
+
         self.map_view = None
-        
+
     def save():
         #if project exist in db, update
         #else create new project
