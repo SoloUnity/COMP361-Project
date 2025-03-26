@@ -102,7 +102,7 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.assertEqual(path[1].y, 2)
         self.assertEqual(path[2].y, 3)
         
-    def testDFSVisitAllMultipleTargets(self):
+    def testVisitAllMultipleTargets(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0],
@@ -124,7 +124,7 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.assertEqual(path[3].y, 2)
         self.assertEqual(path[4].y, 3)
     
-    def testDFSComplexGraphPathfinding(self):
+    def testComplexGraphPathfinding(self):
         mapData = [
             [[(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0], [(0, 2), (2, 2), 0]],
             [[(1, 0), (3, 3), 0], [(1, 1), (4, 4), 0], [(1, 2), (5, 5), 0]],
@@ -143,7 +143,7 @@ class DFSAlgorithmTests(unittest.TestCase):
         self.assertEqual(path[-1].x, 2)
         self.assertEqual(path[-1].y, 2)
     
-    def testAStarNoPath(self):
+    def testNoPath(self):
         mapData = [
             [
                 [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0]
