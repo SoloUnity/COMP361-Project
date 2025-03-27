@@ -19,6 +19,17 @@ class Project:
     
     def set_bounding_box(self, box):
         (self.top_left_x, self.top_left_y), (self.bottom_right_x, self.bottom_right_y) = box
+    
+    # Add property accessor for boundingBox
+    @property
+    def boundingBox(self):
+        """Return the bounding box as a tuple of tuples: ((top_left_x, top_left_y), (bottom_right_x, bottom_right_y))"""
+        return self.get_bounding_box()
+    
+    @boundingBox.setter
+    def boundingBox(self, box):
+        """Set the bounding box from a tuple of tuples: ((top_left_x, top_left_y), (bottom_right_x, bottom_right_y))"""
+        self.set_bounding_box(box)
 
 def get_project_by_id(project_id):
     conn = get_connection()

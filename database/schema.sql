@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS Trajectory (
     endTime DATETIME,
     coordinateList TEXT NOT NULL,
     totalDistance FLOAT NOT NULL,
-    distanceTraveled FLOAT NULL
+    distanceTraveled FLOAT NULL,
+    algo VARCHAR(36) NOT NULL,
+    heuristics JSON DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS Rover (
