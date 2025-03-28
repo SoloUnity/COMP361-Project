@@ -14,7 +14,7 @@ class EditRover:
         self.rover = rover
         self.algorithm = algorithm
         self.coordinates = coordinates
-        self.active = True  # Whether the popup is active
+        self.active = False  # Whether the popup is active
         self.font_20 = pygame.font.Font(REGULAR, 20)
         self.font_15 = pygame.font.Font(REGULAR, 15) 
         self.font_10 = pygame.font.Font(REGULAR, 12) 
@@ -153,6 +153,51 @@ class EditRover:
             self.rover_attributes = {attr: str(value) for attr, value in vars(self.rover).items()}
         else:
             self.rover_attributes = {}  # Clear attributes if no rover is set
+    
+    def reset(self):
+        """Resets all fields to their default values."""
+        self.rover = None
+        self.algorithm = None
+        self.coordinates = []
+        self.error_message = None
+        self.selected_attr = None
+        
+        # Reset heuristic values
+        self.euc_val = 0
+        self.man_val = 0
+        self.geo_val = 0
+        self.as_val = 0
+        self.lap_val = 0
+        self.se_val = 0
+        self.ee_val = 0
+        
+        self.heuristic_value = {
+            'euclidean': self.euc_val,
+            'manhattan': self.man_val,
+            'geographical': self.geo_val,
+            'astar': self.as_val,
+            'laplacian': self.lap_val,
+            'structural_entropy': self.se_val,
+            'edge_entropy': self.ee_val,
+        }
+        
+        # Reset rover attributes
+        self.rover_attributes = {}
+
+        # Reset UI elements
+        self.rover_drop_down.selected_index = -1  # No rover selected
+        self.astar_button.is_clicked = False
+        self.bfs_button.is_clicked = False
+        self.dfs_button.is_clicked = False
+        self.one_point_button.is_clicked = False
+        self.multiple_points_button.is_clicked = False
+        self.euclidean_slider.value = 0
+        self.manhattan_slider.value = 0
+        self.geographical_slider.value = 0
+        self.AS_slider.value = 0
+        self.LAP_slider.value = 0
+        self.SE_slider.value = 0
+        self.EE_slider.value = 0
 
     def get_window_attributes(self):
         if self.algorithm == "A*":
@@ -179,8 +224,9 @@ class EditRover:
         
         return True
     
+    #TODO: implement
+    
     def select_coordinates(self):
-        print("selecting coords")
         return [1, 42, 123]
 
     def update(self, events):
@@ -227,10 +273,14 @@ class EditRover:
             self.active = False
 
         if self.confirm_button.is_clicked:
+            self.confirm_button.is_clicked = False
             validity_check = self.check_validity()
             if validity_check is True:
                 self.active = False
+                attributes = self.get_window_attributes()
                 print(self.get_window_attributes())
+                self.reset()
+                return attributes
             else:
                 # Store the error message if any fields are missing
                 self.error_message = validity_check
@@ -238,7 +288,6 @@ class EditRover:
         if self.select_coords_button.is_clicked:
             coordinates = self.select_coordinates()
             self.coordinates = coordinates
-            print(self.coordinates)
 
 
 

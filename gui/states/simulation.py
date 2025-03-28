@@ -6,6 +6,7 @@ from gui.control_element.button import Button
 from gui.control_element.popup_window import PopupWindow
 from gui.control_element.bounding_box import BoundingBox
 from gui.control_element.map_view import MapView
+from gui.control_element.edit_rover import EditRover
 from utils.paths import REGULAR, get_image, get_text_file
 from gui.states.tab_manager import TabManager
 from gui.temp_project import Project
@@ -27,6 +28,8 @@ class Simulation:
         self.projects = []
         self.active_project = None  # Currently selected project
         self.fullscreen = False  # Tracks fullscreen state
+
+        self.rover_to_display = None
 
         # Initialize map area (x, y, width, height)
         self.map_x = 40
@@ -101,6 +104,8 @@ class Simulation:
         self.drag = BoundingBox(display, self, 40, 63, display.get_width() - 40, display.get_height() - 30, 10000)
         self.confirm_bb = Button("Confirm", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
         self.reset_bb = Button("Reset", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 + 80, display.get_height() - 100, 70, 50)
+
+        self.edit_rover_window = EditRover(display)
 
 
     def draw_text(self, text, position, font, color=WHITE):
@@ -283,6 +288,7 @@ class Simulation:
         self.error_button.draw(self.display)
         self.view_data_button.draw(self.display)
         self.setting_button.draw(self.display)
+        self.edit_rover_window.draw(self.display)
 
         # Draw bounding box selection
         # self.drag.draw()
@@ -325,6 +331,16 @@ class Simulation:
                 self.help_popup.show(get_text_file("../text_files/help_desc.txt"))
             else:
                 self.help_popup.hide()
+
+        if self.add_rover_button.is_clicked:
+            self.edit_rover_window.toggle_popup()
+        
+        self.rover_to_display = self.edit_rover_window.update(events)
+
+        if self.rover_to_display is not None:
+            print("Attributes Sent to Algorithm")
+            print(self.rover_to_display)
+            self.rover_to_display = False
 
         if self.restore_window_button.is_clicked:
             self.toggle_fullscreen()
