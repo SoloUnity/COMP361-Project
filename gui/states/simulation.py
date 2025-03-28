@@ -60,7 +60,7 @@ class Simulation:
 
         self.project_drop_down = DropDown("Project", PROJECT_OPTIONS, COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, DROP_DOWN_COLOR_OPTION_INACTIVE, DROP_DOWN_COLOR_OPTION_ACTIVE,FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, 40, MENU_Y, 55, MENU_H, 150)
 
-        self.select_rover_drop_down = DropDown("Select Rover", TEMP_OPTION, COLOR_MAIN_ACTIVE, (13, 59, 66), DROP_DOWN_COLOR_OPTION_ACTIVE, (21, 97, 109),FONT, MENU_TEXT_COLOR, 5, 483, MENU_Y, 342, MENU_H, 250)
+        self.select_rover_drop_down = DropDown("Select Rover", TEMP_OPTION, COLOR_MAIN_ACTIVE, (13, 59, 66), DROP_DOWN_COLOR_OPTION_ACTIVE, (21, 97, 109),FONT, MENU_TEXT_COLOR, 5, 483, MENU_Y, 342, MENU_H, 250, scroll_icon_actif=True)
         #display.get_width()/2 - 75
 
         #ICONS TOP

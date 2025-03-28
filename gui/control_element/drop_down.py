@@ -1,9 +1,10 @@
 import pygame
+from utils.paths import REGULAR, get_image
 
 ## TODO handle no initial option list，for select rover
 
 class DropDown():
-    def __init__(self, name, options: list, color_main_inactive, color_main_active, color_option_inactive, color_option_active, font, text_color, border_radius: int, x: int, y: int, w: int, h: int, option_w: int):
+    def __init__(self, name, options: list, color_main_inactive, color_main_active, color_option_inactive, color_option_active, font, text_color, border_radius: int, x: int, y: int, w: int, h: int, option_w: int, scroll_icon_actif = False):
 
         self.name = name
         self.options = options
@@ -21,12 +22,21 @@ class DropDown():
         self.option_toggled = False
         self.menu_active = False
         self.option_active = -1
+        self.scroll_icon_actif = scroll_icon_actif
+
         
     def draw(self, display):
         pygame.draw.rect(display, self.color_main_active if self.menu_active else self.color_main_inactive, self.rect, 0, self.border_radius)
         name = self.font.render(self.name, 1, self.text_color) 
         display.blit(name, name.get_rect(center = self.rect.center))
 
+        if self.scroll_icon_actif:
+            arrow_icon = pygame.image.load(get_image('icon_arrow_down.png'))
+            icon_size = (self.rect.height // 2, self.rect.height // 2)  # Resize based on dropdown height
+            arrow_icon = pygame.transform.scale(arrow_icon, icon_size)
+
+            icon_rect = arrow_icon.get_rect(midright=(self.rect.right - 10, self.rect.centery))
+            display.blit(arrow_icon, icon_rect.topleft)
         
         if self.option_toggled:
 
