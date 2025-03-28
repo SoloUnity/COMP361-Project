@@ -13,6 +13,13 @@ class Project:
         self.top_left_y = top_left_y
         self.bottom_right_x = bottom_right_x
         self.bottom_right_y = bottom_right_y
+
+        self.bounding_box = None 
+        self.selecting_box = False
+        self.selection_made = False
+        self.start_pos = None
+        self.bounding_box_selected = False
+        self.relative_bounding_box = None
     
     def get_bounding_box(self):
         return ((self.top_left_x, self.top_left_y), (self.bottom_right_x, self.bottom_right_y))
@@ -20,43 +27,35 @@ class Project:
     def set_bounding_box(self, box):
         (self.top_left_x, self.top_left_y), (self.bottom_right_x, self.bottom_right_y) = box
     
-    # Add property accessor for boundingBox
     @property
     def boundingBox(self):
-        """Return the bounding box as a tuple of tuples: ((top_left_x, top_left_y), (bottom_right_x, bottom_right_y))"""
         return self.get_bounding_box()
     
     @boundingBox.setter
     def boundingBox(self, box):
-        """Set the bounding box from a tuple of tuples: ((top_left_x, top_left_y), (bottom_right_x, bottom_right_y))"""
         self.set_bounding_box(box)
 
-        self.bounding_box_selected = False
-        self.bounding_box = None  # Stores (x1, y1, x2, y2)
-        self.selecting_box = False
-        self.start_pos = None
-        self.selection_made = False # When the bounding box has been determined but not confirmed
-        self.relative_bounding_box = None 
-
-    def start_selection(self, start_pos):
-            self.selecting_box = True
-            self.start_pos = start_pos
-
-    def update_selection(self, current_pos):
-        
-        if self.selecting_box and self.start_pos is not None and current_pos is not None:
-            self.bounding_box = (*self.start_pos, *current_pos)  # (x1, y1, x2, y2)
-        else:
-            print(f"Invalid selection: start_pos={self.start_pos}, current_pos={current_pos}")
+    def start_selection(self, coords):
+        self.start_pos = coords
+        self.selecting_box = True
+    
+    def update_selection(self, coords):
+        if self.selecting_box:
+            self.bounding_box = (
+                self.start_pos[0],
+                self.start_pos[1],
+                coords[0],
+                coords[1]
+            )
         
     def finalize_selection(self):
-        # check if start and end coord are not equal
         if self.bounding_box:
             self.bounding_box_selected = True
-            self.selecting_box = False
-            print(f"Final bounding box: {self.bounding_box}")  # Debugging
-        else:
-            print("Warning: No bounding box selected before finalizing!")
+            self.selection_made = False
+            self.top_left_x = min(self.bounding_box[0], self.bounding_box[2])
+            self.top_left_y = min(self.bounding_box[1], self.bounding_box[3])
+            self.bottom_right_x = max(self.bounding_box[0], self.bounding_box[2])
+            self.bottom_right_y = max(self.bounding_box[1], self.bounding_box[3])
 
 def get_project_by_id(project_id):
     conn = get_connection()
@@ -98,6 +97,26 @@ def create_project():
     conn.close()
     
     return project
+
+def update_project(project):
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = """UPDATE Project 
+              SET LastSavedOn = ?, TopLeftX = ?, TopLeftY = ?, 
+                  BottomRightX = ?, BottomRightY = ? 
+              WHERE ProjectID = ?"""
+    cursor.execute(query, (
+        datetime.now(),
+        project.top_left_x,
+        project.top_left_y,
+        project.bottom_right_x,
+        project.bottom_right_y,
+        project.project_id
+    ))
+    rows_updated = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return rows_updated > 0
 
 def delete_project(project_id):
     conn = get_connection()
