@@ -1,7 +1,7 @@
 import pygame
 
 class Slider:
-    def __init__(self, step, color_bar, color_slider, color_active, x, y, w, h, initial_value=0, min_value=-1, max_value=1):
+    def __init__(self, step, color_bar, color_slider, color_active, x, y, w, h, slider_w = 4, initial_value=0, min_value=-1, max_value=1):
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
@@ -11,7 +11,7 @@ class Slider:
         self.rect = pygame.Rect(x, y, w, h)
         
         # Set the slider handle size
-        self.slider_rect = pygame.Rect(x, y, 10, h)
+        self.slider_rect = pygame.Rect(x, y, slider_w, h)
         self.dragging = False
         self.value = initial_value if initial_value is not None else min_value
         self.update_slider_position()
