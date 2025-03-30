@@ -20,11 +20,11 @@ class BoundingBox:
         self.end_lat_long = None
 
     # # return coordinates of mouse position
-    # def get_coordinates(self):
-    #     mpos = pygame.mouse.get_pos()
-    #     if self.rect.collidepoint(mpos):
-    #         return (mpos[0] - self.rect.x, mpos[1] - self.rect.y)
-    #     return None # Ignore coordinates if outside
+    def get_coordinates(self):
+        mpos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mpos):
+            return (mpos[0] - self.rect.x, mpos[1] - self.rect.y)
+        return None # Ignore coordinates if outside
     
     # return bound of bounding box
     def get_bounds(self):
@@ -73,7 +73,7 @@ class BoundingBox:
 
         if self.active:
             mpos = pygame.mouse.get_pos()
-            # coords = self.get_coordinates()
+            # coord_placement = self.get_coordinates()
             if coords:
                 text_surface = self.font.render(str(coords), True, "white")
                 # self.screen.blit(text_surface, (mpos[0] + 10, mpos[1] + 10))
