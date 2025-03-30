@@ -35,6 +35,9 @@ class MapView:
 
     def draw_start_screen(self):
         bg = pygame.image.load('gui/images/mars.jpg')
+        # print(f"Offset X: {self.offset_x}, Offset Y: {self.offset_y}")
+        # print(f"Image Size: {self.img_width}x{self.img_height}")
+
 
         # Scale the image based on the dynamically updated size
         bg = pygame.transform.scale(bg, (int(self.img_width), int(self.img_height)))
@@ -84,10 +87,11 @@ class MapView:
         if end_lat is None or end_lon is None:
             # Reset to default view
             self.offset_x, self.offset_y = 0, 0
+            self.img_width, self.img_height = 1440, 720  # Reset image size
             self.draw_start_screen()
             return
 
-        # Convert lat/lon to pixel coordinates
+        # Convert lat/lon to pixel coordinates using full image resolution
         def latlon_to_pixels(lat, lon, img_width, img_height):
             x = ((lon + 180) / 360) * img_width
             y = ((90 - lat) / 180) * img_height
@@ -103,15 +107,28 @@ class MapView:
         # Compute new scale so that the bounding box fills the MapView display area
         scale_x = self.display_w / bbox_width_orig
         scale_y = self.display_h / bbox_height_orig
-        new_scale = min(scale_x, scale_y)
+        new_scale = min(scale_x, scale_y) # Keep the aspect ratio correct
 
         # Update the full image dimensions
         self.img_width = 8536 * new_scale
         self.img_height = 4268 * new_scale
 
-        # Set the offsets so that the top-left of the bounding box aligns with the MapView's top-left corner
-        self.offset_x = -top_left_x * new_scale + self.offset_x
-        self.offset_y = -top_left_y * new_scale + self.offset_y
+        # Compute new bounding box positions in the scaled image
+        new_top_left_x = top_left_x * new_scale
+        new_top_left_y = top_left_y * new_scale
+        new_bot_right_x = bot_right_x * new_scale
+        new_bot_right_y = bot_right_y * new_scale
+
+        # Compute offsets to center the bounding box correctly
+        bbox_width_scaled = new_bot_right_x - new_top_left_x
+        bbox_height_scaled = new_bot_right_y - new_top_left_y
+
+        self.offset_x = (self.display_w - bbox_width_scaled) / 2 - new_top_left_x
+        self.offset_y = (self.display_h - bbox_height_scaled) / 2 - new_top_left_y
+
+        # # Set the offsets so that the top-left of the bounding box aligns with the MapView's top-left corner
+        # self.offset_x = -top_left_x * new_scale + self.offset_x
+        # self.offset_y = -top_left_y * new_scale + self.offset_y
 
         self.draw_start_screen()
 
