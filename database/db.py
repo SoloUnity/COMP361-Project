@@ -8,10 +8,25 @@ os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
 def setup_database():
     conn = sqlite3.connect(DATABASE)
     schema_path = resource_path('database/schema.sql')
+    
     with open(schema_path, 'r') as f:
         conn.executescript(f.read())
+
+    cursor = conn.cursor()
+    
+    # Insert the key "key" if no key exists
+    cursor.execute("SELECT COUNT(*) FROM LicenseKey")
+    count = cursor.fetchone()[0]
+    
+    if count == 0:  # Insert only if the table is empty
+        cursor.execute(
+            "INSERT INTO LicenseKey (key, verifiedOn) VALUES (?, datetime('now'))",
+            ("key",)
+        )
+    
     conn.commit()
     conn.close()
+
 
 def get_connection():
     return sqlite3.connect(DATABASE)
