@@ -1,6 +1,8 @@
 from collections import deque
+
 from Pathfinder import PathFinder
 from Location import Location
+from Node import Node
 
 class BFS(PathFinder):
     """
@@ -105,8 +107,3 @@ class BFS(PathFinder):
             current = current.parent
         path.reverse()
         return path
-
-class Node :
-    def __init__(self, coord : (int, int), parent) :
-        self.coord = coord
-        self.parent = parent

@@ -1,6 +1,10 @@
 import unittest
 import sys
-sys.path.append('../../src/ai-algos')
+import os
+
+projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
+
 from heuristics import *
 from Location import Location
 from Rover import Rover

@@ -1,13 +1,18 @@
 import uuid
 from datetime import datetime
-from database.db import  get_connection
+from database.db import get_connection
 import sqlite3
 
 class Project:
-    def __init__(self, project_id=None, created_on=None, last_saved_on=None):
+    def __init__(self, project_id=None, created_on=None, last_saved_on=None,
+                 top_left_x=0.0, top_left_y=0.0, bottom_right_x=100.0, bottom_right_y=100.0):
         self.project_id = project_id or str(uuid.uuid4())
         self.created_on = created_on or datetime.now()
         self.last_saved_on = last_saved_on or self.created_on
+        self.top_left_x = top_left_x
+        self.top_left_y = top_left_y
+        self.bottom_right_x = bottom_right_x
+        self.bottom_right_y = bottom_right_y
 
 def get_project_by_id(project_id):
     conn = get_connection()
@@ -17,7 +22,15 @@ def get_project_by_id(project_id):
     row = cursor.fetchone()
     conn.close()
     if row:
-        return Project(project_id=row["ProjectID"], created_on=row["CreatedOn"], last_saved_on=row["LastSavedOn"])
+        return Project(
+            project_id=row["ProjectID"], 
+            created_on=row["CreatedOn"], 
+            last_saved_on=row["LastSavedOn"],
+            top_left_x=row["TopLeftX"],
+            top_left_y=row["TopLeftY"],
+            bottom_right_x=row["BottomRightX"],
+            bottom_right_y=row["BottomRightY"]
+        )
     return None
 
 def create_project():
@@ -25,16 +38,42 @@ def create_project():
     
     conn = get_connection()
     cursor = conn.cursor()
-    query = "INSERT INTO Project (ProjectID, CreatedOn, LastSavedOn) VALUES (?, ?, ?)"
+    query = """INSERT INTO Project 
+               (ProjectID, CreatedOn, LastSavedOn, TopLeftX, TopLeftY, BottomRightX, BottomRightY) 
+               VALUES (?, ?, ?, ?, ?, ?, ?)"""
     cursor.execute(query, (
         project.project_id,
         project.created_on,
-        project.last_saved_on
+        project.last_saved_on,
+        project.top_left_x,
+        project.top_left_y,
+        project.bottom_right_x,
+        project.bottom_right_y
     ))
     conn.commit()
     conn.close()
     
     return project
+
+def update_project(project):
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = """UPDATE Project 
+              SET LastSavedOn = ?, TopLeftX = ?, TopLeftY = ?, 
+                  BottomRightX = ?, BottomRightY = ? 
+              WHERE ProjectID = ?"""
+    cursor.execute(query, (
+        datetime.now(),
+        project.top_left_x,
+        project.top_left_y,
+        project.bottom_right_x,
+        project.bottom_right_y,
+        project.project_id
+    ))
+    rows_updated = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return rows_updated > 0
 
 def delete_project(project_id):
     conn = get_connection()

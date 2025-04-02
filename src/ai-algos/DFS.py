@@ -1,12 +1,8 @@
 from collections import deque
+
 from Pathfinder import PathFinder
 from Location import Location
-
-# TODO make a common node class after merging everything together
-class Node:
-    def __init__(self, coord: (int, int), parent):
-        self.coord = coord
-        self.parent = parent
+from Node import Node
 
 class DFS(PathFinder):
 
