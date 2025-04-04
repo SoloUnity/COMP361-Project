@@ -48,6 +48,30 @@ class DFSAlgorithmTests(unittest.TestCase):
         
         self.assertEqual(len(pathLow), 3)
     
+    def testDiagonalMovement(self):
+        mapData = [
+            [
+                [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0]
+            ],
+            [
+                [(1, 0), (2, 2), 0], [(1, 1), (3, 3), 0]
+            ]
+        ]
+        
+        mapHandler = MapHandler(mapData)
+        dfs = DFS()  
+        
+        fromLoc = Location(0, 0, 0, 0, 0)
+        toLoc = Location(1, 1, 3, 3, 0)
+                
+        path = dfs.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+        
+        self.assertEqual(len(path), 2)
+        self.assertEqual(path[0].x, 0)
+        self.assertEqual(path[0].y, 0)
+        self.assertEqual(path[1].x, 1)
+        self.assertEqual(path[1].y, 1)
+    
     def testGoToSimpleMultipleHorizontalSteps(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
