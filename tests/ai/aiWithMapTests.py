@@ -10,9 +10,15 @@ mapFilePath = os.path.join(projectRoot, '../Mars_HRSC_MOLA_BlendDEM_Global_200mp
 from MapHandler import MapHandler
 from Rover import Rover
 from BFS import BFS
+from DFS import DFS
+from AStar import AStar
 from dem_to_matrix import dem_to_matrix
 from Location import Location
 from heuristics import *
+
+"""
+To run : python tests/ai/aiWithMapTests.py
+"""
 
 def bfsOnMap() :
     matrix, new_transform = dem_to_matrix(mapFilePath, (5000, 4030), 100, 100)
@@ -37,7 +43,7 @@ def dfsOnMap() :
     fromLoc = mH.getLocationAt(10, 10)
     toLoc1 = mH.getLocationAt(10, 15)
     toLoc2 = mH.getLocationAt(12, 9)
-    rover = Rover(8) # with 10 a different path
+    rover = Rover(5) # with 10 a different path
     dfs = DFS()
     path = dfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
     printPath(path)
@@ -60,15 +66,15 @@ def heuristicsOnMap() :
     toLoc1 = mH.getLocationAt(10, 15)
     toLoc2 = mH.getLocationAt(12, 9)
     loc = mH.getLocationAt(10, 14)
-    rover = Rover(10) # with 10 a different path
+    rover = Rover(10, 1, 5, 10) # with 10 a different path
     bfs = BFS()
     path = bfs.goTo(fromLoc, toLoc1, rover, mH)
-    print(solar_exposure_h(path, loc, toLoc2, rover, mH))
+    print(euclidean_distance_h(path, loc, toLoc2, rover, mH))
 
 def printPath(path) :
     for loc in path :
         loc.printLoc()
 
 if __name__ == "__main__":
-    bfsOnMap()
-    #heuristicsOnMap()
+    #aStarOnMap()
+    heuristicsOnMap()

@@ -49,17 +49,53 @@ def has_sunlight_obstacle(loc, mapHandler) :
         if alt_diff != 0 and (10 * i)/alt_diff > tanlat : return 1
     return 0
 
-def distance_h(path, loc, toLoc, rover, mapHandler) :
+def getMidPoint(loc1, loc2) :
+    return (loc1.x + (loc2.x - loc1.x)//2, loc1.y + (loc2.y - loc1.y)//2)
+
+def getEnergyForSlope(loc1, loc2, rover) :
+    distance = euclidean_distance(loc1, loc2)
+    if distance == 0 : return 0
+
+    slope = abs(altitude_difference(loc1, loc2)) / distance
+    if (0 <= slope and slope < rover.tanMidSlope) :
+        return rover.lowSlopeEnergy
+    elif (rover.tanMidSlope <= slope and slope < rover.tanHighSlope) :
+        return rover.midSlopeEnergy
+    else :
+        return rover.highSlopeEnergy
+
+def distance_h(path, loc, toLoc, rover, mapHandler, distance) :
     """
-    Computes the distance travelled so far using the euclidean distance
-    Estimates the distance to go by computing the euclidean distance between loc and toLoc
+    Computes the distance travelled so far using the provided distance
+    Estimates the distance to go by computing the distance between loc and toLoc
     """
     soFar = 0
     for i in range(len(path) - 1) :
-        soFar += euclidean_distance(path[i], path[i+1])
-    soFar += euclidean_distance(path[len(path)-1], loc)
-    toGo = euclidean_distance(loc, toLoc)
+        soFar += distance(path[i], path[i+1])
+    soFar += distance(path[len(path)-1], loc)
+    toGo = distance(loc, toLoc)
     return soFar + toGo
+
+def euclidean_distance_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the distance travelled so far using the euclidean distance
+    Estimates the distance to go by computing the distance between loc and toLoc
+    """
+    return distance_h(path, loc, toLoc, rover, mapHandler, euclidean_distance)
+
+def manhattan_distance_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the distance travelled so far using the Manhattan distance
+    Estimates the distance to go by computing the distance between loc and toLoc
+    """
+    return distance_h(path, loc, toLoc, rover, mapHandler, manhattan_distance)
+
+def geographical_distance_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the distance travelled so far using the geographical distance
+    Estimates the distance to go by computing the distance between loc and toLoc
+    """
+    return distance_h(path, loc, toLoc, rover, mapHandler, geographical_distance)
 
 def stable_altitude_h(path, loc, toLoc, rover, mapHandler) :
     """
@@ -83,12 +119,33 @@ def avg_altitude_h(path, loc, toLoc, rover, mapHandler) :
     Favors paths that with low altitudes
     """
     altitudes = map(lambda l : l.altitude, path)
-    soFar = (fsum(altitudes) + loc.altitude + toLoc.altitude) / (len(path) + 2)
-    toGo = (loc.altitude + toLoc.altitude) / 2
-    return (soFar + toGo)/2
+    soFar = (fsum(altitudes) + loc.altitude + toLoc.altitude)
+    toGo = (loc.altitude + toLoc.altitude)/2
+    return (soFar + toGo)/(len(path) + 3)
 
 def solar_exposure_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the number of location exposed to the sun on the provided path
+    """
     exposures = map(lambda l : has_sunlight_obstacle(l, mapHandler), path)
     soFar = fsum(exposures) + has_sunlight_obstacle(loc, mapHandler)
-    return soFar
 
+    midx, midy = getMidPoint(loc, toLoc)
+    toGo = has_sunlight_obstacle(mapHandler.getLocationAt(midx, midy), mapHandler)
+
+    return soFar + toGo
+
+def energy_consumption_h(path, loc, toLoc, rover, mapHandler) :
+    """
+    Computes the energy consumption for the provided path and rover
+    Estimates the energy consumption for the remaining distance to toLoc
+    """
+    soFar = 0
+    for i in range(len(path) - 1) :
+        soFar += getEnergyForSlope(path[i], path[i+1], rover)
+    if (len(path) > 0) : 
+        soFar += getEnergyForSlope(path[len(path)-1], loc, rover)
+    
+    toGo = getEnergyForSlope(loc, toLoc, rover)
+
+    return soFar + toGo

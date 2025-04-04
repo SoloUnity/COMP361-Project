@@ -11,7 +11,7 @@ from Rover import Rover
 from MapHandler import MapHandler
 
 """
-To run (from the test/ai directory) : python -m unittest heuristicsTests.py
+To run : python -m unittest tests/ai/heuristicsTests.py
 """
 
 class heuristicsTests(unittest.TestCase):
@@ -41,7 +41,7 @@ class heuristicsTests(unittest.TestCase):
         path = [loc0, loc1, loc2, loc3]
         rover = Rover(30)
         mh = MapHandler([[]])
-        self.assertAlmostEqual(distance_h(path, loc4, toLoc, rover, mh), 80.20, places = 2)
+        self.assertAlmostEqual(euclidean_distance_h(path, loc4, toLoc, rover, mh), 80.20, places = 2)
 
     def test_stableAltitudeH(self):
         loc0 = Location(0, 0, 0, 0, 5)
@@ -65,4 +65,4 @@ class heuristicsTests(unittest.TestCase):
         path = [loc0, loc1, loc2, loc3]
         rover = Rover(30)
         mh = MapHandler([[]])
-        self.assertAlmostEqual(avg_altitude_h(path, loc4, toLoc, rover, mh), 12.67, places = 2)
+        self.assertAlmostEqual(avg_altitude_h(path, loc4, toLoc, rover, mh), 6.21, places = 2)
