@@ -15,7 +15,7 @@ class TestAStarAlgorithm(unittest.TestCase):
         self.roverHigh = Rover(30)
         self.roverLow = Rover(0)
 
-    def testGoToSimpleHorizontal(self):
+    def testGoToHorizontal(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0]]
@@ -34,7 +34,7 @@ class TestAStarAlgorithm(unittest.TestCase):
         self.assertEqual(pathHigh[0].y, 0)
         self.assertEqual(pathHigh[1].y, 1)
 
-    def testGoToSimpleVertical(self):
+    def testGoToVertical(self):
         mapData = [
             [[(0, 0), (0, 0), 0],
             [(0, 1), (1, 1), 0],
@@ -51,6 +51,30 @@ class TestAStarAlgorithm(unittest.TestCase):
         
         self.assertEqual(len(pathHigh), 3)
         self.assertEqual(len(pathLow), 3)
+
+        def testDiagonalMovement(self):
+            mapData = [
+                [
+                    [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0]
+                ],
+                [
+                    [(1, 0), (2, 2), 0], [(1, 1), (3, 3), 0]
+                ]
+            ]
+            
+            mapHandler = MapHandler(mapData)
+            aStar = AStar()  
+            
+            fromLoc = Location(0, 0, 0, 0, 0)
+            toLoc = Location(1, 1, 3, 3, 0)
+                    
+            path = aStar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
+            
+            self.assertEqual(len(path), 2)
+            self.assertEqual(path[0].x, 0)
+            self.assertEqual(path[0].y, 0)
+            self.assertEqual(path[1].x, 1)
+            self.assertEqual(path[1].y, 1)
 
     def testVisitAllSingleTarget(self):
         mapData = [
@@ -87,7 +111,7 @@ class TestAStarAlgorithm(unittest.TestCase):
         self.assertEqual(len(pathHigh), 5)
         self.assertEqual(len(pathLow), 5)
 
-    def testAStarShortestPath(self):
+    def testShortestPath(self):
         mapData = [
             [
                 [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0],
@@ -132,7 +156,7 @@ class TestAStarAlgorithm(unittest.TestCase):
         self.assertEqual(path[-1].x, 2)
         self.assertEqual(path[-1].y, 2)
 
-    def testAStarNoPath(self):
+    def testNoPath(self):
         mapData = [
             [
                 [(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0]

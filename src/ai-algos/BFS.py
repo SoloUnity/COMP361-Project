@@ -5,105 +5,34 @@ from Location import Location
 from Node import Node
 
 class BFS(PathFinder):
-    """
-    Breadth-first search algorithm
-    """
 
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
-        """
-        Finds a path from fromLoc to toLoc in the provided submap and for the provided rover
-            using BFS
-        Returns a list of locations corresponding to the path
-
-        fromLoc : Location
-            the starting location
-        toLoc : Location
-            the destination
-        rover : Rover
-            the rover for which the method searches a path
-        mapHandler : MapHandler
-            handler for the map subsection the methods searches in
-        """
-
         q = deque()
-        visited = []
+        visited_coords = set()
 
-        q.append(Node((fromLoc.x, fromLoc.y), None))
-        while(len(q) > 0) :
-            current = q.popleft()
-            visited.append(current.coord)
-            if (current.coord == (toLoc.x, toLoc.y)) :
-                return [fromLoc] + self.getPath(current, mapHandler)
-            
-            cx, cy = current.coord
-            currentLoc = mapHandler.getLocationAt(cx, cy)
-            for n in mapHandler.getNeighbors(cx, cy):
-                nLoc = mapHandler.getLocationAt(n[0], n[1])
-                if rover.canTraverse(currentLoc, nLoc) and n not in visited :
-                    q.append(Node(n, current))
-        
+        startCoord = (fromLoc.x, fromLoc.y)
+        goalCoord = (toLoc.x, toLoc.y)
+
+        startNode = Node(startCoord, None)
+        q.append(startNode)
+        visited_coords.add(startCoord)
+
+        while q:
+            currentNode = q.popleft()
+            currentCoord = currentNode.coord
+
+            if currentCoord == goalCoord:
+                return [fromLoc] + self.getPath(currentNode, mapHandler)
+
+            currentLocation = self.coordToLocation(currentCoord, mapHandler)
+
+            for neighborCoord in mapHandler.getNeighbors(currentCoord[0], currentCoord[1]):
+                if neighborCoord not in visited_coords:
+                    neighborLocation = self.coordToLocation(neighborCoord, mapHandler)
+
+                    if rover.canTraverse(currentLocation, neighborLocation):
+                        visited_coords.add(neighborCoord)
+                        neighborNode = Node(neighborCoord, currentNode)
+                        q.append(neighborNode)
+
         return []
-
-    def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        """
-        Finds a path from fromLoc that visits the locations in toVisit in the provided submap and for the provided rover
-            using BFS
-        Returns a list of locations corresponding to the path
-
-        fromLoc : Location
-            the starting location
-        toVisit : List[Location]
-            the destination
-        rover : Rover
-            the rover for which the method searches a path
-        mapHandler : MapHandler
-            handler for the map subsection the methods searches in
-        """
-        
-        path = [fromLoc]
-        if (len(toVisit) == 0) : return path
-
-        leftToVisit = set(map(lambda loc : (loc.x, loc.y), toVisit))
-        q = deque()
-        visited = []
-
-        q.append(Node((fromLoc.x, fromLoc.y), None))
-        while(len(q) > 0) :
-            current = q.popleft()
-            visited.append(current.coord)
-            if current.coord in leftToVisit :
-                leftToVisit.remove(current.coord)
-                path += self.getPath(current, mapHandler)
-                if (len(leftToVisit) == 0) : return path
-
-                # restart with current as the new fromLoc
-                q.clear()
-                visited.clear()
-                q.append(Node(current.coord, None))
-
-            else :
-                cx, cy = current.coord
-                currentLoc = mapHandler.getLocationAt(cx, cy)
-                for n in mapHandler.getNeighbors(cx, cy):
-                    nLoc = mapHandler.getLocationAt(n[0], n[1])
-                    if rover.canTraverse(currentLoc, nLoc) and n not in visited :
-                        q.append(Node(n, current))
-
-        return path
-
-    def getPath(self, toLoc, mapHandler) :
-        """
-        Computes the path starting at toLoc following the parent of each Node (fromLoc is excluded)
-        Returns a list of Locations
-
-        toLoc : Node
-        mapHandler : MapHandler
-        """
-        path = []
-        current = toLoc
-        while current.parent != None :
-            cx, cy = current.coord
-            path.append(mapHandler.getLocationAt(cx, cy))
-            current = current.parent
-        path.reverse()
-        return path
