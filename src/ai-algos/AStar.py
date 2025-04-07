@@ -7,112 +7,65 @@ from Node import Node
 
 class AStar(PathFinder):
 
+    def __init__(self, heuristic_func=None):
+        if heuristic_func is None:
+            # use heuristis manhattan_distance(loc1, loc2)
+            self.heuristic_func = lambda a, b: abs(a[0] - b[0]) + abs(a[1] - b[1])
+        else:
+            if not callable(heuristic_func):
+                raise TypeError("heuristic_func must be a callable function")
+            self.heuristic_func = heuristic_func
+
     def goTo(self, fromLoc, toLoc, rover, mapHandler):
         priorityQueue = []
-        gScore = {} # g(n), cost from start to n
-        fScore = {} # f(n), g(n) + h(n)
+        gScore = {}
+        visited_coords = set()
 
-        startNode = Node((fromLoc.x, fromLoc.y), None)  # changed to use Node
-        goalNode  = (toLoc.x, toLoc.y)
+        startCoord = (fromLoc.x, fromLoc.y)
+        goalCoord = (toLoc.x, toLoc.y)
 
-        # start node
-        heapq.heappush(priorityQueue, (self.heuristic(startNode.coord, goalNode), startNode))
-        gScore[startNode.coord] = 0
-        fScore[startNode.coord] = self.heuristic(startNode.coord, goalNode)
-
-        visited = set()
+        startNode = Node(startCoord, None)
+        start_h = self.heuristic_func(startCoord, goalCoord)
+        gScore[startCoord] = 0
+        heapq.heappush(priorityQueue, (start_h, startNode))
 
         while priorityQueue:
-            _, current = heapq.heappop(priorityQueue)
+            current_f, currentNode = heapq.heappop(priorityQueue)
+            currentCoord = currentNode.coord
 
-            # reached the goal coordinate, reconstruct the path from the end
-            if current.coord == goalNode:
-                return self.getPath(current, mapHandler)
+            if currentCoord == goalCoord:
+                return [fromLoc] + self.getPath(currentNode, mapHandler)
 
-            visited.add(current.coord)
-            cx, cy = current.coord
-            currentLoc = self.coordToLocation(current.coord, mapHandler)
+            if currentCoord in visited_coords:
+                continue
+            visited_coords.add(currentCoord)
 
-            # check all neighbours
-            for neighbour in mapHandler.getNeighbors(cx, cy):
-                if neighbour in visited:
+            currentLocation = self.coordToLocation(currentCoord, mapHandler)
+            current_g = gScore[currentCoord]
+
+            for neighborCoord in mapHandler.getNeighbors(currentCoord[0], currentCoord[1]):
+                if neighborCoord in visited_coords:
                     continue
 
-                neighbourLoc = self.coordToLocation(neighbour, mapHandler)
+                neighborLocation = self.coordToLocation(neighborCoord, mapHandler)
 
-                # check if the rover can traverse to the neighbour
-                if not rover.canTraverse(currentLoc, neighbourLoc):
+                if not rover.canTraverse(currentLocation, neighborLocation):
                     continue
 
-                # computing best known cost so far + cost of going to neighbour
+                move_cost = self.cost(currentLocation, neighborLocation, rover)
+                tentative_gScore = current_g + move_cost
 
-                tentativeGScore = gScore[current.coord] + self.cost(currentLoc, neighbourLoc, rover)
-                # if new path is better
-                if (neighbour not in gScore) or (tentativeGScore < gScore[neighbour]):
-                    gScore[neighbour]   = tentativeGScore
-                    fScore[neighbour]   = tentativeGScore + self.heuristic(neighbour, goalNode) # f(n) = g(n) + h(n)
+                if neighborCoord not in gScore or tentative_gScore < gScore[neighborCoord]:
+                    gScore[neighborCoord] = tentative_gScore
+                    neighbor_h = self.heuristic_func(neighborCoord, goalCoord)
+                    fScore = tentative_gScore + neighbor_h
 
-                    # push to prioQ if not already in it
-                    if not any(neighbour == node.coord for _, node in priorityQueue):
-                        heapq.heappush(priorityQueue, (fScore[neighbour], Node(neighbour, current)))
+                    neighborNode = Node(neighborCoord, currentNode)
+                    heapq.heappush(priorityQueue, (fScore, neighborNode))
 
-        # no path found
         return []
-
-    def visitAll(self, fromLoc, toVisit, rover, mapHandler):
-        path = [fromLoc]
-        if not toVisit:
-            return path
-
-        leftToVisit = set((loc.x, loc.y) for loc in toVisit)
-        currentLoc = fromLoc
-
-        while leftToVisit:
-            closestLoc = None
-            closestPath = None
-            minDistance = float('inf')
-
-            # find the next reachable location with the shortest path
-            for locCoord in leftToVisit:
-                toLoc = self.coordToLocation(locCoord, mapHandler)
-                tempPath = self.goTo(currentLoc, toLoc, rover, mapHandler)
-                # if found a path shorter than our current best
-                if tempPath and (len(tempPath) - 1) < minDistance:
-                    minDistance = len(tempPath) - 1
-                    closestLoc = locCoord
-                    closestPath = tempPath
-
-            if closestLoc:
-                # append the new path without the duplicate start to our total path
-                path.extend(closestPath[1:])
-                leftToVisit.remove(closestLoc)
-                currentLoc = self.coordToLocation(closestLoc, mapHandler)
-            else:
-                # cant reach any more locations
-                break
-
-        return path
 
     def cost(self, currentLoc, neighborLoc, rover):
         altitudeDiff = neighborLoc.altitude - currentLoc.altitude
-        return 1 + max(0, altitudeDiff)
-
-    def heuristic(self, a, b):
-        # current heuristic is Manhattan distance
-        # TODO experiment with other heuristics
-        # TODO use heuristic function from heuristics.py
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
-    def coordToLocation(self, coord, mapHandler):
-        x, y = coord
-        return mapHandler.getLocationAt(x, y)
-
-    def getPath(self, current, mapHandler):
-        path = []
-        while current is not None:
-            path.append(current.coord)
-            current = current.parent
-        path.reverse()
-
-        # convert (x, y) tuples to Location objects
-        return [self.coordToLocation(coord, mapHandler) for coord in path]
+        base_distance = 1
+        return base_distance + max(0, altitudeDiff)
