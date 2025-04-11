@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(os.path.join(projectRoot, 'src/ai-algos'))
@@ -42,7 +43,7 @@ def dfsOnMap() :
     mH = MapHandler(matrix)
     fromLoc = mH.getLocationAt(10, 10)
     toLoc1 = mH.getLocationAt(10, 15)
-    toLoc2 = mH.getLocationAt(12, 9)
+    toLoc2 = mH.getLocationAt(120, 9)
     rover = Rover(5) # with 10 a different path
     dfs = DFS()
     path = dfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
@@ -75,6 +76,44 @@ def printPath(path) :
     for loc in path :
         loc.printLoc()
 
+def algosOnSameMap() :
+    matrix, new_transform = dem_to_matrix(mapFilePath, (5000, 4030), 2000, 2000)
+    mH = MapHandler(matrix)
+    print("Map loaded")
+
+    print("--------------------------------------------------------------------------")
+
+    fromLoc = mH.getLocationAt(10, 10)
+    toLoc1 = mH.getLocationAt(10, 1500)
+    toLoc2 = mH.getLocationAt(120, 9)
+    rover = Rover(8) # with 10 a different path
+
+    print("Running BFS")
+    bfs = BFS()
+    start_time = time.time()
+    bfs_path = bfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
+    print("BFS time : ", time.time() - start_time)
+    printPath(bfs_path)
+
+    print("--------------------------------------------------------------------------")
+
+    print("Running DFS")
+    bfs = DFS()
+    start_time = time.time()
+    dfs_path = bfs.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
+    print("DFS time : ", time.time() - start_time)
+    #printPath(dfs_path)
+
+    print("--------------------------------------------------------------------------")
+
+    print("Running aStar")
+    aStar = AStar()
+    start_time = time.time()
+    astar_path = aStar.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
+    print("BFS time : ", time.time() - start_time)
+    printPath(astar_path)
+
 if __name__ == "__main__":
+    algosOnSameMap()
     #aStarOnMap()
-    heuristicsOnMap()
+    #heuristicsOnMap()
