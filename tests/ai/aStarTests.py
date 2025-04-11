@@ -9,6 +9,8 @@ from MapHandler import MapHandler
 from AStar import AStar
 from Location import Location
 from Rover import Rover
+from heuristics import manhattan_distance, euclidean_distance
+
 
 class TestAStarAlgorithm(unittest.TestCase):
     def setUp(self):
@@ -201,6 +203,31 @@ class TestAStarAlgorithm(unittest.TestCase):
         # Low-slope rover: should fail to climb (no path)
         pathLow = astar.goTo(fromLoc, toLoc, self.roverLow, mapHandler)
         self.assertFalse(pathLow)
+    
+    def testMultipleHeuristics(self):        
+        mapData = [
+            [[(0, 0), (0, 0), 0], [(0, 1), (1, 1), 0], [(0, 2), (2, 2), 0]],
+            [[(1, 0), (3, 3), 0], [(1, 1), (4, 4), 0], [(1, 2), (5, 5), 0]],
+            [[(2, 0), (6, 6), 0], [(2, 1), (7, 7), 0], [(2, 2), (8, 8), 0]]
+        ]
+        
+        mapHandler = MapHandler(mapData)
+        
+        # Create AStar with multiple heuristics
+        astar_multiple = AStar([(1, manhattan_distance), (1, euclidean_distance)])
+        
+        fromLoc = Location(0, 0, 0, 0, 0)
+        toLoc = Location(2, 2, 8, 8, 0)
+        
+        path = astar_multiple.goTo(fromLoc, toLoc, self.roverHigh, mapHandler)
+        
+        self.assertGreater(len(path), 0, "Multiple heuristics should find a path")
+        self.assertEqual(path[0].x, 0)
+        self.assertEqual(path[0].y, 0)
+        self.assertEqual(path[-1].x, 2)
+        self.assertEqual(path[-1].y, 2)
+        
+        self.assertLessEqual(len(path), 3, "Path should be optimal")
 
 if __name__ == '__main__':
     unittest.main()
