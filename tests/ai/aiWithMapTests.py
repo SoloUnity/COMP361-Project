@@ -56,7 +56,7 @@ def aStarOnMap() :
     toLoc1 = mH.getLocationAt(10, 15)
     toLoc2 = mH.getLocationAt(12, 9)
     rover = Rover(8) # with 10 a different path
-    aStar = AStar()
+    aStar = AStar([(1, euclidean_distance_h)])
     path = aStar.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
     printPath(path)
 
@@ -87,6 +87,7 @@ def algosOnSameMap() :
     toLoc1 = mH.getLocationAt(10, 1500)
     toLoc2 = mH.getLocationAt(120, 9)
     rover = Rover(8) # with 10 a different path
+    """
 
     print("Running BFS")
     bfs = BFS()
@@ -105,15 +106,16 @@ def algosOnSameMap() :
     #printPath(dfs_path)
 
     print("--------------------------------------------------------------------------")
+    """
 
     print("Running aStar")
-    aStar = AStar()
+    aStar = AStar([(1, euclidean_distance_h)])
     start_time = time.time()
     astar_path = aStar.visitAll(fromLoc, [toLoc1, toLoc2], rover, mH)
     print("BFS time : ", time.time() - start_time)
     printPath(astar_path)
 
 if __name__ == "__main__":
-    algosOnSameMap()
-    #aStarOnMap()
+    #algosOnSameMap()
+    aStarOnMap()
     #heuristicsOnMap()

@@ -72,7 +72,7 @@ def distance_h(path, loc, toLoc, rover, mapHandler, distance) :
     soFar = 0
     for i in range(len(path) - 1) :
         soFar += distance(path[i], path[i+1])
-    soFar += distance(path[len(path)-1], loc)
+    if (len(path) > 0) : soFar += distance(path[len(path)-1], loc)
     toGo = distance(loc, toLoc)
     return soFar + toGo
 
