@@ -117,3 +117,52 @@ def delete_rover(rover_id):
     conn.commit()
     conn.close()
     return rows_deleted > 0
+
+# ...existing code...
+
+def update_rover(rover):
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = """UPDATE Rover SET 
+               ProjectID = ?,
+               Name = ?,
+               Weight = ?,
+               yearLaunched = ?,
+               Status = ?,
+               Manufacturer = ?,
+               topSpeed = ?,
+               wheelCount = ?,
+               maxIncline = ?,
+               lastTrajectory = ?,
+               spriteFilePath = ?,
+               totalDistanceTraveled = ?,
+               powerSource = ?,
+               description = ?,
+               lowSlopeEnergy = ?,
+               midSlopeEnergy = ?,
+               highSlopeEnergy = ?
+               WHERE RoverID = ?"""
+    cursor.execute(query, (
+        rover.project_id,
+        rover.name,
+        rover.weight,
+        rover.yearLaunched,
+        rover.status,
+        rover.manufacturer,
+        rover.top_speed,
+        rover.wheel_count,
+        rover.max_incline,
+        rover.last_trajectory,
+        rover.sprite_file_path,
+        rover.total_distance_traveled,
+        rover.power_source,
+        rover.description,
+        rover.lowSlopeEnergy,
+        rover.midSlopeEnergy,
+        rover.highSlopeEnergy,
+        rover.rover_id
+    ))
+    conn.commit()
+    rows_updated = cursor.rowcount
+    conn.close()
+    return rows_updated > 0
