@@ -1,16 +1,14 @@
 import uuid
 from datetime import datetime
-from database.db import  get_connection
+from database.db import get_connection
 import sqlite3
 
 class Trajectory:
-    def __init__(self, trajectory_id=None, rover_id='', project_id='', 
-                 current_coord='', target_coord='', start_time=None, 
-                 end_time=None, coordinate_list=None, total_distance=0.0, 
+    def __init__(self, trajectory_id=None, rover_id='', current_coord='', target_coord='', 
+                 start_time=None, end_time=None, coordinate_list=None, total_distance=0.0, 
                  distance_traveled=0.0, algo='', heuristics='{}'):
         self.trajectory_id = trajectory_id or str(uuid.uuid4())
         self.rover_id = rover_id
-        self.project_id = project_id
         self.current_coord = current_coord
         self.target_coord = target_coord
         self.start_time = start_time or datetime.now()
@@ -32,7 +30,6 @@ def get_trajectory_by_id(trajectory_id):
         return Trajectory(
             trajectory_id=row["TrajectoryID"],
             rover_id=row["RoverID"],
-            project_id=row["ProjectID"],
             current_coord=row["currentCoord"],
             target_coord=row["targetCoord"],
             start_time=row["startTime"],
@@ -45,11 +42,10 @@ def get_trajectory_by_id(trajectory_id):
         )
     return None
 
-def create_trajectory(rover_id, project_id, current_coord, target_coord, coordinate_list=None, 
+def create_trajectory(rover_id, current_coord, target_coord, coordinate_list=None, 
                       total_distance=0.0, algo='astar', heuristics='{}'):
     trajectory = Trajectory(
         rover_id=rover_id,
-        project_id=project_id,
         current_coord=current_coord,
         target_coord=target_coord,
         coordinate_list=coordinate_list,
@@ -61,13 +57,12 @@ def create_trajectory(rover_id, project_id, current_coord, target_coord, coordin
     conn = get_connection()
     cursor = conn.cursor()
     query = """INSERT INTO Trajectory 
-              (TrajectoryID, RoverID, ProjectID, currentCoord, targetCoord, startTime, 
-               endTime, coordinateList, totalDistance, distanceTraveled, algo, heuristics) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+              (TrajectoryID, RoverID, currentCoord, targetCoord, startTime, endTime, 
+               coordinateList, totalDistance, distanceTraveled, algo, heuristics) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
     cursor.execute(query, (
         trajectory.trajectory_id,
         trajectory.rover_id,
-        trajectory.project_id,
         trajectory.current_coord,
         trajectory.target_coord,
         trajectory.start_time,

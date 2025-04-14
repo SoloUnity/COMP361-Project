@@ -8,23 +8,9 @@ CREATE TABLE IF NOT EXISTS Project (
     BottomRightY FLOAT NOT NULL DEFAULT 100.0
 );
 
-CREATE TABLE IF NOT EXISTS Trajectory (
-    TrajectoryID VARCHAR(36) PRIMARY KEY NOT NULL,
-    RoverID VARCHAR(36) NOT NULL,
-    ProjectID VARCHAR(36) NOT NULL,
-    currentCoord VARCHAR(100) NOT NULL,
-    targetCoord VARCHAR(100) NOT NULL,
-    startTime DATETIME NOT NULL,
-    endTime DATETIME,
-    coordinateList TEXT NOT NULL,
-    totalDistance FLOAT NOT NULL,
-    distanceTraveled FLOAT NULL,
-    algo VARCHAR(36) NOT NULL,
-    heuristics JSON DEFAULT '{}'
-);
-
 CREATE TABLE IF NOT EXISTS Rover (
     RoverID VARCHAR(36) PRIMARY KEY NOT NULL,
+    ProjectID VARCHAR(36) NOT NULL,
     Name VARCHAR(255) NOT NULL,
     Weight FLOAT NOT NULL,
     yearLaunched INT NOT NULL,
@@ -40,7 +26,23 @@ CREATE TABLE IF NOT EXISTS Rover (
     description TEXT NOT NULL,
     lowSlopeEnergy FLOAT NOT NULL DEFAULT 10.0,
     midSlopeEnergy FLOAT NOT NULL DEFAULT 20.0,
-    highSlopeEnergy FLOAT NOT NULL DEFAULT 30.0
+    highSlopeEnergy FLOAT NOT NULL DEFAULT 30.0,
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
+);
+
+CREATE TABLE IF NOT EXISTS Trajectory (
+    TrajectoryID VARCHAR(36) PRIMARY KEY NOT NULL,
+    RoverID VARCHAR(36) NOT NULL,
+    currentCoord VARCHAR(100) NOT NULL,
+    targetCoord VARCHAR(100) NOT NULL,
+    startTime DATETIME NOT NULL,
+    endTime DATETIME,
+    coordinateList TEXT NOT NULL,
+    totalDistance FLOAT NOT NULL,
+    distanceTraveled FLOAT NULL,
+    algo VARCHAR(36) NOT NULL,
+    heuristics JSON DEFAULT '{}',
+    FOREIGN KEY (RoverID) REFERENCES Rover(RoverID)
 );
 
 CREATE TABLE IF NOT EXISTS LicenseKey (

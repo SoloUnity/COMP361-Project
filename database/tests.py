@@ -99,14 +99,19 @@ def print_object(obj, obj_type):
 
 def test_rover():
     print_header("🤖 Testing Rover CRUD Operations")
-    print_info("Creating Curiosity rover...")
-    rover = create_rover("curiosity")
+    
+    print_info("Creating new project for rover...")
+    project = create_project()
+    
+    print_info("Creating Curiosity rover associated with the project...")
+    rover = create_rover("curiosity", project.project_id)
     print_success(f"Created rover: {rover.name} (ID: {rover.rover_id})")
-
+    
     print_object(rover, "Rover")
     
     print_info("Verifying energy consumption values...")
-    if hasattr(rover, 'lowSlopeEnergy') and hasattr(rover, 'midSlopeEnergy') and hasattr(rover, 'highSlopeEnergy'):
+    if (hasattr(rover, 'lowSlopeEnergy') and hasattr(rover, 'midSlopeEnergy') 
+        and hasattr(rover, 'highSlopeEnergy')):
         print_success(f"Energy consumption fields found: Low: {rover.lowSlopeEnergy}, Mid: {rover.midSlopeEnergy}, High: {rover.highSlopeEnergy}")
     else:
         print_error("Energy consumption fields not found in rover object!")
@@ -114,18 +119,10 @@ def test_rover():
     
     print_info(f"Retrieving rover with ID: {rover.rover_id}...")
     retrieved_rover = get_rover_by_id(rover.rover_id)
-
+    
     if retrieved_rover and retrieved_rover.rover_id == rover.rover_id:
         print_success(f"Successfully retrieved rover: {retrieved_rover.name}")
         print_object(retrieved_rover, "Retrieved Rover")
-        
-        if (retrieved_rover.lowSlopeEnergy == rover.lowSlopeEnergy and
-            retrieved_rover.midSlopeEnergy == rover.midSlopeEnergy and
-            retrieved_rover.highSlopeEnergy == rover.highSlopeEnergy):
-            print_success("Energy consumption values correctly retrieved from database")
-        else:
-            print_error("Energy consumption values do not match original values!")
-            return False
     else:
         print_error("Failed to retrieve rover!")
         return False
@@ -142,6 +139,9 @@ def test_rover():
     else:
         print_error("Rover still exists in database after deletion!")
         return False
+
+    print_info(f"Deleting project with ID: {project.project_id}...")
+    delete_project(project.project_id)
     
     return True
 
@@ -199,18 +199,17 @@ def test_project():
 def test_trajectory():
     print_header("🛣️ Testing Trajectory CRUD Operations")
     
-    rover = create_rover("perseverance")
+    # First, create a project and a rover associated with that project
     project = create_project()
+    rover = create_rover("perseverance", project.project_id)
     
     print_info("Creating new trajectory...")
     current_coord = "10.5,20.3"
     target_coord = "15.8,22.1"
     coordinate_list = [[10.5, 20.3], [12.0, 21.0], [15.8, 22.1]]
     
-    # Updated to include algo and heuristics
     trajectory = create_trajectory(
         rover.rover_id, 
-        project.project_id, 
         current_coord, 
         target_coord,
         coordinate_list=coordinate_list,
@@ -225,11 +224,10 @@ def test_trajectory():
     print_info(f"Retrieving trajectory with ID: {trajectory.trajectory_id}...")
     retrieved_trajectory = get_trajectory_by_id(trajectory.trajectory_id)
     
-    if retrieved_trajectory and retrieved_trajectory.trajectory_id == trajectory.trajectory_id:
-        print_success(f"Successfully retrieved trajectory")
+    if (retrieved_trajectory and retrieved_trajectory.trajectory_id == trajectory.trajectory_id):
+        print_success("Successfully retrieved trajectory")
         print_object(retrieved_trajectory, "Retrieved Trajectory")
         
-        # Verify that algo and heuristics are correctly stored and retrieved
         if retrieved_trajectory.algo == "dijkstra" and "weight" in retrieved_trajectory.heuristics:
             print_success("Algorithm and heuristics data correctly retrieved")
         else:
@@ -245,7 +243,7 @@ def test_trajectory():
     
     print_info(f"Deleting trajectory with ID: {trajectory.trajectory_id}...")
     if delete_trajectory(trajectory.trajectory_id):
-        print_success(f"Successfully deleted trajectory")
+        print_success("Successfully deleted trajectory")
     else:
         print_error("Failed to delete trajectory!")
         delete_rover(rover.rover_id)

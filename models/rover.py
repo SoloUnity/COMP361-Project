@@ -4,11 +4,12 @@ from datetime import datetime
 from database.db import get_connection
 
 class Rover:
-    def __init__(self, rover_id=None, name='', weight=0.0, yearLaunched=None, status='Healthy', 
+    def __init__(self, rover_id=None, project_id=None, name='', weight=0.0, yearLaunched=None, status='Healthy', 
                  manufacturer='', top_speed=0.0, wheel_count=0, max_incline=0.0, last_trajectory=None, 
                  sprite_file_path='', total_distance_traveled=0.0, power_source='', description='',
                  lowSlopeEnergy=0.0, midSlopeEnergy=0.0, highSlopeEnergy=0.0):
         self.rover_id = rover_id or str(uuid.uuid4())
+        self.project_id = project_id
         self.name = name
         self.weight = weight
         self.yearLaunched = yearLaunched or datetime.now().year
@@ -36,6 +37,7 @@ def get_rover_by_id(rover_id):
     if row:
         return Rover(
             rover_id=row["RoverID"],
+            project_id=row["ProjectID"],
             name=row["Name"],
             weight=row["Weight"],
             yearLaunched=row["yearLaunched"],
@@ -58,7 +60,7 @@ def get_rover_by_id(rover_id):
 # This needs to be here to prevent circular importing. Please don't remove.
 from models.presets import create_curiosity, create_perseverance, create_lunokhod1, create_lunokhod2
 
-def create_rover(rover_type):
+def create_rover(rover_type, project_id):
     r = rover_type.lower()
     if r == "curiosity":
         rover = create_curiosity()
@@ -71,21 +73,35 @@ def create_rover(rover_type):
     else:
         raise ValueError("Unknown rover type: " + rover_type)
 
+    rover.project_id = project_id
+
     conn = get_connection()
     cursor = conn.cursor()
     query = """INSERT INTO Rover 
-               (RoverID, Name, Weight, yearLaunched, Status, Manufacturer, topSpeed, 
+               (RoverID, ProjectID, Name, Weight, yearLaunched, Status, Manufacturer, topSpeed, 
                 wheelCount, maxIncline, lastTrajectory, spriteFilePath, 
                 totalDistanceTraveled, powerSource, description,
                 lowSlopeEnergy, midSlopeEnergy, highSlopeEnergy) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
     cursor.execute(query, (
-        rover.rover_id, rover.name, rover.weight, rover.yearLaunched,
-        rover.status, rover.manufacturer, rover.top_speed,
-        rover.wheel_count, rover.max_incline, rover.last_trajectory,
-        rover.sprite_file_path, rover.total_distance_traveled, 
-        rover.power_source, rover.description,
-        rover.lowSlopeEnergy, rover.midSlopeEnergy, rover.highSlopeEnergy
+        rover.rover_id,
+        rover.project_id,
+        rover.name,
+        rover.weight,
+        rover.yearLaunched,
+        rover.status,
+        rover.manufacturer,
+        rover.top_speed,
+        rover.wheel_count,
+        rover.max_incline,
+        rover.last_trajectory,
+        rover.sprite_file_path,
+        rover.total_distance_traveled,
+        rover.power_source,
+        rover.description,
+        rover.lowSlopeEnergy,
+        rover.midSlopeEnergy,
+        rover.highSlopeEnergy
     ))
     conn.commit()
     conn.close()
