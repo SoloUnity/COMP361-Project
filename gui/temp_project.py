@@ -20,6 +20,7 @@ class Project:
         self.selection_made = False # When the bounding box has been determined but not confirmed
         self.relative_bounding_box = None
         self.zoomed_in = False
+        self.pathfinding_active = False
 
         self.rovers = None
 

@@ -11,7 +11,7 @@ class Button:
         self.border_radius = border_radius
         self.icon = icon
         self.icon_scaling = icon_scaling
-        
+        self.drawn = False
         self.is_hovered = False
         self.is_clicked = False
         self.maintain_click = maintain_click
@@ -39,7 +39,12 @@ class Button:
             text_rect = text_surface.get_rect(center=self.rect.center)
             display.blit(text_surface, text_rect)
 
+        self.drawn = True
+
     def update(self, event_list):
+        if not self.drawn:
+            return
+        
         mpos = pygame.mouse.get_pos()
         self.is_hovered = self.rect.collidepoint(mpos)
 

@@ -105,6 +105,7 @@ class Simulation:
         self.drag = BoundingBox(self.display, self, 40, 63, self.display.get_width() - 40, self.display.get_height() - 63, 10000)
         self.confirm_bb = Button("Confirm", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
         self.reset_bb = Button("Reset", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 + 80, display.get_height() - 100, 70, 50)
+        self.pathfind_btn = Button("Find Path", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width()/2 - 80, display.get_height() - 100, 70, 50)
 
         self.edit_rover_window = EditRover(display)
 
@@ -390,8 +391,10 @@ class Simulation:
                                 print(self.projects)
                                 self.reset_simulation_window()
                 
+                # Add marker when zoomed in
                 if current_project and current_project.zoomed_in:
                     mpos = pygame.mouse.get_pos()
+                    # Prevent adding markers on the border of the GUI
                     if current_project.map_view.is_within_map(mpos):
                         current_project.map_view.add_marker(mpos)
 
@@ -457,6 +460,11 @@ class Simulation:
             self.drag.start_coord = None
             self.drag.end_coord = None
             self.drag.dragging = False
+            
+        if self.pathfind_btn.is_clicked and not current_project.pathfinding_active:
+            current_project.pathfinding_active = True
+            self.findPath(current_project.map_view.get_markers_pos())
+            
         
         # Draw UI elements
         self.draw_window()
@@ -466,6 +474,11 @@ class Simulation:
         if current_project and current_project.selection_made:
             self.reset_bb.draw(self.display)
             self.confirm_bb.draw(self.display)
+            
+        if current_project and not current_project.pathfinding_active and len(current_project.map_view.get_markers_pos()) >= 2:
+            self.pathfind_btn.draw(self.display)
+            self.pathfind_btn.update(events)
+        
 
         # Display Help Popup Window
         if self.show_help_popup:
@@ -480,6 +493,10 @@ class Simulation:
             coords = self.active_project.map_view.draw()
             if not self.active_project.bounding_box_selected:
                 self.drag.draw(coords)
+
+    def findPath(self, markers):
+        print("PATHFINDING...")
+        print(markers)
 
     def get_size(self):
         return self.width, self.height

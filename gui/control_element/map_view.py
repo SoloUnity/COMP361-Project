@@ -31,6 +31,9 @@ class MapView:
         
         self.static_surface = pygame.Surface((self.display_w, self.display_h))
         self.draw_start_screen()
+        
+    def get_markers_pos(self):
+        return self.markers.copy()
 
     def draw_text(self, text, position, color=TEXT_COLOR):
         """Draw text on the screen at a given position with a specified color."""
