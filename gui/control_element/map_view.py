@@ -25,6 +25,10 @@ class MapView:
         self.display_w, self.display_h = width, height
         self.img_width, self.img_height = 1440, 720
 
+        self.marker_icon = pygame.image.load("gui/images/icon_arrow_down.png")
+        self.marker_icon = pygame.transform.scale(self.marker_icon, (15, 15))
+        self.markers = []  
+        
         self.static_surface = pygame.Surface((self.display_w, self.display_h))
         self.draw_start_screen()
 
@@ -48,6 +52,14 @@ class MapView:
         # Blit the scaled image with the current offset
         self.static_surface.blit(bg, (self.offset_x, self.offset_y))
 
+    def is_within_map(self, pos):
+        """Return True if pos is inside this MapView's displayed rectangle."""
+        mx, my = pos
+        return (
+            self.display_offset_x <= mx < self.display_offset_x + self.display_w and
+            self.display_offset_y <= my < self.display_offset_y + self.display_h
+        )
+
     def handle_scroll(self, dx):
         new_offset_x = self.offset_x + dx
 
@@ -60,9 +72,17 @@ class MapView:
 
         # Redraw after scrolling
         self.draw_start_screen()
+    
+    def add_marker(self, pos):
+        x = pos[0] - self.marker_icon.get_width() / 2
+        y = pos[1] - self.marker_icon.get_height()
+        self.markers.append((x, y))
 
     def draw(self):
         self.display.blit(self.static_surface, (self.display_offset_x, self.display_offset_y))
+
+        for marker_pos in self.markers:
+            self.display.blit(self.marker_icon, marker_pos)
 
         mouse_pos = pygame.mouse.get_pos()
         
@@ -78,8 +98,7 @@ class MapView:
 
         return (float('%.3f'%lat), float('%.3f'%lon))
 
-
-    def update(self, start_lat_long, end_lat_long):
+    def calculate_zoom(self, start_lat_long, end_lat_long):
         start_lat, start_lon = start_lat_long
         end_lat, end_lon = end_lat_long
         print(f"Start: ({start_lat}, {start_lon}), End: ({end_lat}, {end_lon})")

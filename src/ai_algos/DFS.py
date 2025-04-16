@@ -1,6 +1,6 @@
-from Pathfinder import PathFinder
-from Location import Location
-from Node import Node
+from .Pathfinder import PathFinder
+from .Location import Location
+from .Node import Node
 
 class DFS(PathFinder):
 

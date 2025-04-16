@@ -1,7 +1,7 @@
 #Author : Mathilde Peruzzo
 
 from math import sqrt, sin, asin, tan, fsum
-from MapHandler import MapHandler
+from .MapHandler import MapHandler
 
 def euclidean_distance(loc1, loc2) :
     """

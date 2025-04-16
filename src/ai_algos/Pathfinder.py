@@ -1,7 +1,7 @@
-from Location import Location
-from Rover import Rover
-from MapHandler import MapHandler
-from Node import Node
+from .Location import Location
+from .Rover import Rover
+from .MapHandler import MapHandler
+from .Node import Node
 
 class PathFinder:
 

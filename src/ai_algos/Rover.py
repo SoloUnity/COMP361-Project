@@ -1,6 +1,6 @@
-from Location import Location
+from .Location import Location
 import math
-from heuristics import euclidean_distance
+from .heuristics import euclidean_distance
 
 class Rover:
 

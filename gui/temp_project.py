@@ -19,6 +19,7 @@ class Project:
         self.start_pos = None
         self.selection_made = False # When the bounding box has been determined but not confirmed
         self.relative_bounding_box = None
+        self.zoomed_in = False
 
         self.rovers = None
 

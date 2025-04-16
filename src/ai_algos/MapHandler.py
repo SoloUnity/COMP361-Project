@@ -1,4 +1,4 @@
-from Location import Location
+from .Location import Location
 
 class MapHandler:
     def __init__(self, mapData):

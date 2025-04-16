@@ -335,8 +335,7 @@ class Simulation:
         self.minimize_window_button.update(events)
         self.setting_button.update(events)
         self.error_button.update(events)
-        self.view_data_button.update(events) 
-        # self.map_view.update()
+        self.view_data_button.update(events)       
 
         # Handle Window Control
         if self.close_window_button.is_clicked:
@@ -390,6 +389,11 @@ class Simulation:
                                 self.active_project = None
                                 print(self.projects)
                                 self.reset_simulation_window()
+                
+                if current_project and current_project.zoomed_in:
+                    mpos = pygame.mouse.get_pos()
+                    if current_project.map_view.is_within_map(mpos):
+                        current_project.map_view.add_marker(mpos)
 
 
             # if event.type == pygame.VIDEORESIZE:  # Handle window resize properly
@@ -443,8 +447,9 @@ class Simulation:
 
             offset = (40, 62)
             top_left, bot_right = self.drag.get_bounds()
-            self.active_project.map_view.update(top_left, bot_right)
+            self.active_project.map_view.calculate_zoom(top_left, bot_right)
             self.drag.reset()
+            self.active_project.zoomed_in = True
 
         elif self.reset_bb.is_clicked and current_project.selection_made:
             self.active_project.selection_made = False
@@ -471,7 +476,7 @@ class Simulation:
         # Mars Full Map
         #need to add condition for when no longer selecting area
         if self.active_project:
-            self.active_project.map_view.draw_start_screen()
+            # self.active_project.map_view.draw_start_screen()
             coords = self.active_project.map_view.draw()
             if not self.active_project.bounding_box_selected:
                 self.drag.draw(coords)
