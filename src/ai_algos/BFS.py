@@ -1,8 +1,8 @@
 from collections import deque
 
-from Pathfinder import PathFinder
-from Location import Location
-from Node import Node
+from .Pathfinder import PathFinder
+from .Location import Location
+from .Node import Node
 
 class BFS(PathFinder):
 

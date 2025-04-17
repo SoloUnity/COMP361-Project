@@ -13,7 +13,7 @@ class Rover:
         self._tanMaxSlope = math.tan(math.radians(maxSlope))
         self.tanHighSlope = math.tan(2 * maxSlope/3)
         self.tanMidSlope = math.tan(maxSlope/3)
-    
+                
     def canTraverse(self, fromLoc, toLoc):
         distance = euclidean_distance(fromLoc, toLoc)
         if distance == 0:

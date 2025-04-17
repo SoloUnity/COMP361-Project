@@ -10,6 +10,10 @@ from gui.control_element.edit_rover import EditRover
 from utils.paths import REGULAR, get_image, get_text_file
 from gui.states.tab_manager import TabManager
 from gui.temp_project import Project
+from src.util.dem_to_matrix import dem_to_matrix, get_window_for_path
+from src.ai_algos.Rover import Rover
+from src.ai_algos.MapHandler import MapHandler
+from src.ai_algos.BFS import BFS
 # from models.project import Project
 #support resize
 
@@ -312,6 +316,9 @@ class Simulation:
         self.setting_button.draw(self.display)
         self.edit_rover_window.draw(self.display)
 
+        if self.active_project and self.active_project.full_path:
+            self.active_project.map_view.draw_path(self.active_project.full_path, color=(255,0,0), width=3)
+
         # Draw bounding box selection
         # self.drag.draw()
 
@@ -394,9 +401,26 @@ class Simulation:
                 # Add marker when zoomed in
                 if current_project and current_project.zoomed_in:
                     mpos = pygame.mouse.get_pos()
-                    # Prevent adding markers on the border of the GUI
-                    if current_project.map_view.is_within_map(mpos):
-                        current_project.map_view.add_marker(mpos)
+                    # Only add marker if NOT clicking on a button
+                    button_rects = [
+                        self.confirm_bb.rect,
+                        self.reset_bb.rect,
+                        self.pathfind_btn.rect,
+                        self.add_rover_button.rect,
+                        self.help_button.rect,
+                        self.close_window_button.rect,
+                        self.restore_window_button.rect,
+                        self.minimize_window_button.rect,
+                        self.error_button.rect,
+                        self.view_data_button.rect,
+                        self.setting_button.rect,
+                    ]
+
+                    # Make sure the click wasn't on any of the buttons
+                    if all(not rect.collidepoint(mpos) for rect in button_rects):
+                        # Prevent adding markers on the border of the GUI
+                        if current_project.map_view.is_within_map(mpos):
+                            current_project.map_view.add_marker(mpos)
 
 
             # if event.type == pygame.VIDEORESIZE:  # Handle window resize properly
@@ -463,9 +487,8 @@ class Simulation:
             
         if self.pathfind_btn.is_clicked and not current_project.pathfinding_active:
             current_project.pathfinding_active = True
-            self.findPath(current_project.map_view.get_markers_pos())
-            
-        
+            self.findPath(current_project.map_view.get_markers())
+
         # Draw UI elements
         self.draw_window()
 
@@ -475,11 +498,10 @@ class Simulation:
             self.reset_bb.draw(self.display)
             self.confirm_bb.draw(self.display)
             
-        if current_project and not current_project.pathfinding_active and len(current_project.map_view.get_markers_pos()) >= 2:
+        if current_project and not current_project.pathfinding_active and len(current_project.map_view.get_markers()) >= 2:
             self.pathfind_btn.draw(self.display)
             self.pathfind_btn.update(events)
         
-
         # Display Help Popup Window
         if self.show_help_popup:
             self.help_popup.draw()
@@ -495,8 +517,47 @@ class Simulation:
                 self.drag.draw(coords)
 
     def findPath(self, markers):
-        print("PATHFINDING...")
-        print(markers)
+        # Determine DEM window that covers all markers
+        tif_file = "Mars_HRSC_MOLA_BlendDEM_Global_200mp_v2.tif"
+        start_pt, rows, cols, path_indices = get_window_for_path(tif_file, markers)
+        print("Markers:", markers)
+        print(f"Window start: {start_pt}, size: {rows}×{cols}")
+        matrix, _ = dem_to_matrix(
+            tif_file,
+            start_point=start_pt,
+            max_rows=rows,
+            max_cols=cols
+        )
+
+        # Initialize map handler and rover
+        mH = MapHandler(matrix)
+        rover = Rover(30)
+        bfs = BFS()
+
+        # Build full path by sequentially connecting each waypoint
+        full_path = []
+        # Starting location
+        r0, c0 = path_indices[0]
+        current_loc = mH.getLocationAt(r0, c0)
+        full_path.append(current_loc)
+
+        for idx, (r, c) in enumerate(path_indices[1:], start=1):
+            target_loc = mH.getLocationAt(r, c)
+            print(f"Finding path from waypoint {idx-1} at {current_loc.printLoc()} to waypoint {idx} at {target_loc.printLoc()}")
+            subpath = bfs.visitAll(current_loc, [target_loc], rover, mH)
+            if not subpath:
+                print(f"No path found between waypoint {idx-1} and {idx}")
+                break
+            # Append subpath, excluding its first element to avoid duplicate
+            full_path.extend(subpath[1:])
+            current_loc = subpath[-1]
+
+        # Output the full route
+        print("Full path found!")
+        self.active_project.full_path = full_path
+        # for loc in full_path:
+        #     loc.printLoc()
+
 
     def get_size(self):
         return self.width, self.height

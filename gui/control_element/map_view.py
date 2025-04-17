@@ -32,13 +32,49 @@ class MapView:
         self.static_surface = pygame.Surface((self.display_w, self.display_h))
         self.draw_start_screen()
         
-    def get_markers_pos(self):
-        return self.markers.copy()
+    def get_markers(self):
+        """Returns the list of coordinates where markers are placed"""
+        return [(lat, lon) for x, y, lat, lon in self.markers]
 
     def draw_text(self, text, position, color=TEXT_COLOR):
         """Draw text on the screen at a given position with a specified color."""
         text_surface = self.font.render(text, True, color)
         self.display.blit(text_surface, position)
+    
+    def latlon_to_screen(self, latlon):
+        """Convert a (lat, lon) pair into screen‐pixel coordinates of the display."""
+        lat, lon = latlon
+
+        # 1. Map to pixel within the *scaled* image
+        img_x = ((lon + 180) / 360) * self.img_width
+        img_y = ((90 - lat) / 180) * self.img_height
+
+        # 2. Account for pan/offset and the MapView’s position on the window
+        screen_x = img_x + self.offset_x + self.display_offset_x
+        screen_y = img_y + self.offset_y + self.display_offset_y
+
+        return (int(screen_x), int(screen_y))
+
+    def draw_path(self, path_locs, color=(255,0,0), width=2):
+        """
+        Given a list of Location objects (with .lat, .lon), or a list of (lat,lon) tuples,
+        draw a continuous line between them.
+        """
+        # build the screen‐pixel list
+        pts = []
+        for loc in path_locs:
+            if hasattr(loc, 'lat') and hasattr(loc, 'lon'):
+                latlon = (loc.lat, loc.lon)
+            else:
+                latlon = loc  # assume it's already a (lat,lon) tuple
+            
+            screen_pos = self.latlon_to_screen(latlon)
+            if screen_pos not in pts:
+                pts.append(screen_pos)
+        
+        # draw a connected line
+        if len(pts) >= 2:
+            pygame.draw.lines(self.display, color, False, pts, width)
 
     def draw_start_screen(self):
         bg = pygame.image.load('gui/images/mars.jpg')
@@ -76,16 +112,26 @@ class MapView:
         # Redraw after scrolling
         self.draw_start_screen()
     
+    def get_lat_lon(self, pos):
+        img_x = pos[0] - self.offset_x - self.display_offset_x
+        img_y = pos[1] - self.offset_y - self.display_offset_y
+
+        lat = 90 - (img_y / self.img_height) * 180
+        lon = (img_x / self.img_width) * 360 - 180
+
+        return lat, lon
+
     def add_marker(self, pos):
         x = pos[0] - self.marker_icon.get_width() / 2
         y = pos[1] - self.marker_icon.get_height()
-        self.markers.append((x, y))
+        lat, lon = self.get_lat_lon((x, y))
+        self.markers.append((x, y, lat, lon))
 
     def draw(self):
         self.display.blit(self.static_surface, (self.display_offset_x, self.display_offset_y))
 
-        for marker_pos in self.markers:
-            self.display.blit(self.marker_icon, marker_pos)
+        for x, y, _, _ in self.markers:
+            self.display.blit(self.marker_icon, (x, y))
 
         mouse_pos = pygame.mouse.get_pos()
         

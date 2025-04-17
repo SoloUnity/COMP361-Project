@@ -21,6 +21,7 @@ class Project:
         self.relative_bounding_box = None
         self.zoomed_in = False
         self.pathfinding_active = False
+        self.full_path = None
 
         self.rovers = None
 
