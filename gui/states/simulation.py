@@ -79,7 +79,7 @@ class Simulation:
         self.show_help_popup = False
 
         # Popup instance
-        self.help_popup = PopupWindow(self.display, width=740, height=488, title="Documentation")
+        self.help_popup = PopupWindow(self.display, width=740, height=488, title="Mars Pathfinding Simulator Guide")
 
         self.close_window_button = Button("Close", COLOR_MAIN_INACTIVE, COLOR_MAIN_ACTIVE, FONT, MENU_TEXT_COLOR, MENU_BORDER_RADIUS, display.get_width() - 40, MENU_Y, ICON_W, MENU_H, CLOSE_ICON, 0.8)
 

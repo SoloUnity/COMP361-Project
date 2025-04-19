@@ -1,13 +1,48 @@
-[title] Mars Pathfinding Simulator Document
 
-[subtitle]The standard Lorem Ipsum passage, used since the 1500s
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+[title] How to Run a Simulation
 
-[subtitle]Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+[subtitle]1. Create a new project.
+- Click 'Project' -> 'New Project'. A new tab will appear with a map of the full Mars terrain.
 
-[subtitle]1914 translation by H. Rackham
-"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
+[subtitle]2. Select a bounding box within the map to define an area of interest.
+- Click on the map and hold the mouse button to drag a bounding box. Once the mouse is released, a confirmation and reset button will appear. 
+- Click on the 'Confirm' button to zoom into the selected area. Click on the 'Reset' button to redefine the bounding box.
 
-[subtitle]Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat."
+[subtitle]3. Add rover. 
+- Once the map is zoomed in, an 'Add Rover' button will appear next to the 'Help' button in the header.
+- Clicking on the button will display a popup window to instantiate a rover.
+
+[subtitle]3.1 Customizing the rover.
+- You can select between pre-made rovers or create a custom rover in the 'Rover Selection' section.
+- Choosing an option from the drop-down list will display the associated information on the right side of the window.
+- In the 'Algorithm Field' section, you can choose the algorithms used to compute your rover's path.
+- For A* in particular, heuristics can be adjusted using sliders for the values, which will influence the path computation.
+
+[subtitle]3.2 Selecting coordinates for the rover.
+- The user must choose either ‘One Point’ or ‘Multiple Point’ for whether the rover wants to go to one destination or pass through multiple points on the map.
+- A button then appears to select the coordinates on the map based on the selected option.
+- Once clicked, the map reappears and the user can place the start and end markers. 
+
+[subtitle]4. Display path.
+- At this point, the rover's markers are visible on the map of Mars within the area of interest. 
+- A button 'Display Path' will appear in the header. Once the button is clicked, the path will be calculated
+using the chosen algorithms and displayed, going from the start point to the end point(s).
+- If multiple algorithms are selected, that same number of algorithms is displayed, one being highlighted.
+- The highlighted path has its information displayed on the side.
+
+[title] Extra Features
+[subtitle]1. Creating multiple projects.
+- You can have up to 9 tabs open at the same time. The user should be able to switch between the tabs by clicking on the desired tab. 
+- These tabs can only be created by clicking 'New Project'. 
+- A tab can be deleted by clicking the red button.
+
+[subtitle]2. Load, save, delete project
+- You can save a project to the database to load it again later on. Click 'Project' -> 'Save Project' to save the current active project. 
+- To load a saved project, create a new project and then click 'Project' -> 'Load Project'.
+- A list of saved projects will appear if any exist, and the user will be able to select one and load it. It will display the state it was saved at. 
+- To delete a project from the database, click 'Project' -> 'Delete Project'. 
+
+[subtitle]3. Selecting between multiple rovers
+- You can create many rovers within the same project for the same area of interest by adding a rover after one has already been created. 
+- If there is more than one rover instantiated for a project,a 'Select Rover' dropdown will appear in the header, with the different rovers. 
+- Choosing a rover will display its path markers on the map. Only one rover's paths can be displayed at a time for a given map.
